@@ -1,9 +1,9 @@
 #include "Window.h"
 
-namespace WindowP {
+
 
 	Window::Window() :
-		m_window(NULL), m_renderer(NULL), m_texture(NULL) {
+		m_window(NULL), m_texture(NULL), m_gamBoard(NULL) {
 
 	}
 
@@ -14,7 +14,7 @@ namespace WindowP {
 			SDL_Quit();
 			return false;
 		}
-		m_window = SDL_CreateWindow("Partical Fire Explosion",
+		m_window = SDL_CreateWindow("Chess",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_SHOWN);
 
 		if (m_window == NULL) {
@@ -33,8 +33,29 @@ namespace WindowP {
 			return false;
 		}
 
-		SDL_SetRenderDrawColor(m_renderer, 255,255, 255, 255);// set the screen to white
-		SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+		m_gamBoard = new Board();
+
+
+		//SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);// set the screen to white
+		//SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+
+		//SDL_Rect highlightRect;
+		//highlightRect.w = 100;
+		//highlightRect.h = 100;
+		SDL_Color drawColor = { 0,0, 255, 255 };//blue
+
+
+		//highlightRect.x = 0;
+		//highlightRect.y = 0;
+		//SDL_RenderFillRect(m_renderer, &highlightRect);
+
+		SDL_SetRenderDrawColor(m_renderer, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+
+		SDL_RenderDrawLine(m_renderer, 50, 50, 200, 200);
+
+
+
+
 
 
 		return  true;
@@ -53,21 +74,40 @@ namespace WindowP {
 					resizeWindow(event.window.data1, event.window.data2);
 				}
 				break;
+
 			}
 
-		
+
+
+
 		}
 		return  true;
 
 	}
 	void Window::close() {
+
+		delete (m_gamBoard);
 		SDL_DestroyRenderer(m_renderer);
 		SDL_DestroyWindow(m_window);
 		SDL_Quit();
 	}
 
-	void Window::update() {
+	void Window::updateRender() {
+		SDL_SetRenderDrawColor(m_renderer, 255, 255,255, SDL_ALPHA_OPAQUE); //set the backgroud to white 
+
 		SDL_RenderClear(m_renderer);
+
+		//SDL_Rect highlightRect;
+		//highlightRect.w = 100;
+		//highlightRect.h = 100;
+		//SDL_Color drawColor = { 118,150, 86, 255 };//green
+
+		//highlightRect.x = 0;
+		//highlightRect.y = 0;
+		//SDL_SetRenderDrawColor(m_renderer, drawColor.r, drawColor.g, drawColor.b, SDL_ALPHA_OPAQUE);//set to white
+		//SDL_RenderFillRect(m_renderer, &highlightRect);
+		m_gamBoard->RenderBoard();
+
 		SDL_RenderPresent(m_renderer);
 	}
 
@@ -88,11 +128,11 @@ namespace WindowP {
 		else {
 			squareWidth = .8 * Width;
 		}
-		Window::SCREEN_WIDTH = Window :: SCREEN_HEIGHT = squareWidth;
+		Window::SCREEN_WIDTH = Window::SCREEN_HEIGHT = squareWidth;
 	}
 	void Window::resizeWindow(int newWidth, int newHeight) {
 		Window::SCREEN_HEIGHT = newHeight;
 		Window::SCREEN_WIDTH = newWidth;
 
 	}
-}
+

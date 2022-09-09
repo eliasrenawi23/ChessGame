@@ -1,9 +1,13 @@
 #include <iostream>
-#include<SDL.h>
+#include <SDL.h>
 #include "Window.h"
 
-using namespace WindowP;
 using namespace std;
+int Window::SCREEN_WIDTH = 600;
+int Window::SCREEN_HEIGHT = 600;
+SDL_Renderer* Window::m_renderer=NULL;
+
+
 int main(int argc, char* args[]) {
 
 	static Window screen;
@@ -15,11 +19,7 @@ int main(int argc, char* args[]) {
 
 	while (true) {
 
-
-
-
-
-		screen.update();
+		screen.updateRender();
 		//check for messages/events
 		if (screen.processEvents() == false) {
 			break;
