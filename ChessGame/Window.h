@@ -9,7 +9,6 @@
 		  static int SCREEN_HEIGHT;
 		  static SDL_Renderer* m_renderer;
 
-		
 		const static int SCREEN_MIN_HEIGHT = 400;
 		const static int SCREEN_MIN_WIDTH = 400;
 	private:

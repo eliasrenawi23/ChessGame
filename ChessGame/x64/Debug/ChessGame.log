@@ -1,6 +1,8 @@
 ﻿  Board.cpp
+  Box.cpp
   Window.cpp
-C:\Users\123\Documents\GitHub\ChessGame\ChessGame\Window.cpp(107,21): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\123\Documents\GitHub\ChessGame\ChessGame\Window.cpp(110,21): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\123\Documents\GitHub\ChessGame\ChessGame\Window.cpp(105,21): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\123\Documents\GitHub\ChessGame\ChessGame\Window.cpp(108,21): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  main.cpp
   Generating Code...
   ChessGame.vcxproj -> C:\Users\123\Documents\GitHub\ChessGame\x64\Debug\ChessGame.exe

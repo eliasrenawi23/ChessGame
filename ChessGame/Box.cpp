@@ -6,16 +6,23 @@ Box::Box() {
 
 }
 
-Box::Box(int x, int y, int width, int higth, SDL_Color boxColor):x(x),y(y), width(width), higth(higth), boxColor(boxColor)
+Box::Box(int x, int y, int size, SDL_Color boxColor):x(x),y(y), size(size), boxColor(boxColor)
 {
+}
+
+void Box::resize(int x, int y, int size)
+{
+	this-> x=x;
+	this->y=y;
+	this->size=size;
 }
 
 void Box::RenderBox()
 {
 	SDL_SetRenderDrawColor(Window::m_renderer, 128,128, 128, 255);
 	SDL_Rect highlightRect;
-	highlightRect.w = width;
-	highlightRect.h = width;
+	highlightRect.w = size;
+	highlightRect.h = size;
 	SDL_SetRenderDrawColor(Window::m_renderer, boxColor.r, boxColor.g, boxColor.b, boxColor.a);
 	highlightRect.x =x;
 	highlightRect.y =y;

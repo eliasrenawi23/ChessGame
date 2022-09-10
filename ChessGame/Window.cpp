@@ -1,6 +1,6 @@
 #include "Window.h"
 
-int Window::SCREEN_WIDTH = 600;
+int Window::SCREEN_WIDTH = 800;
 int Window::SCREEN_HEIGHT = 600;
 SDL_Renderer* Window::m_renderer = NULL;
 
@@ -17,7 +17,7 @@ SDL_Renderer* Window::m_renderer = NULL;
 			return false;
 		}
 		m_window = SDL_CreateWindow("Chess",
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_SHOWN);
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
 		if (m_window == NULL) {
 			SDL_Quit();
@@ -46,6 +46,8 @@ SDL_Renderer* Window::m_renderer = NULL;
 		}
 		m_gamBoard->init();
 
+		std::cout << SCREEN_WIDTH << " "<<SCREEN_HEIGHT << std::endl;
+
 		return  true;
 	}
 	bool Window::processEvents() {
@@ -64,8 +66,6 @@ SDL_Renderer* Window::m_renderer = NULL;
 	
 
 			}
-
-
 
 
 		}

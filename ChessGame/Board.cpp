@@ -33,7 +33,7 @@ void Board::init()
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
 			SDL_Color boxColor = (i + j) % 2 == 0 ? Color1 : Color2;
-			gameboxess[i][j] = { i * BoxWidthandHigth,j * BoxWidthandHigth,i * BoxWidthandHigth + BoxWidthandHigth,j * BoxWidthandHigth + BoxWidthandHigth ,boxColor };
+			gameboxess[i][j] = { i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,boxColor };
 		}
 	}
 
@@ -43,6 +43,15 @@ void Board::resize()
 {
 	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
 	BoxWidthandHigth /= rowBoxNmbersandCols;
+
+	for (int i = 0; i < rowBoxNmbersandCols; i++)
+	{
+		for (int j = 0; j < rowBoxNmbersandCols; j++)
+		{ 
+			gameboxess[i][j].resize(i * BoxWidthandHigth, j * BoxWidthandHigth, BoxWidthandHigth);
+		}
+	}
+
 
 }
 
