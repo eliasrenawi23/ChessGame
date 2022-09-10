@@ -12,16 +12,15 @@ public:
 	const  SDL_Color Color1 = { 255,255,255,SDL_ALPHA_OPAQUE };  //white (255,255,255)
 	const  SDL_Color Color2 = { 118,150, 86, SDL_ALPHA_OPAQUE }; //green(118,150,86)
 private:
-
 	Box** gameboxess;
-
-
 public:
 	Board();
 	void RenderBoard();//torendr all of the boxes 
 	void init();//init all of the boxes 
 	void resize();
 	~Board();
+private:
+	void RenderBox(Box* boxtorender);
 
 };
 
