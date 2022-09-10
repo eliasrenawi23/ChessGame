@@ -8,8 +8,7 @@ private:
 	int y;
 	int width;
 	int higth;
-	SDL_Color boxColor;  
-
+	SDL_Color boxColor; 
 public:
 	Box();
 	Box(int x, int y, int width, int higth, SDL_Color boxColor);

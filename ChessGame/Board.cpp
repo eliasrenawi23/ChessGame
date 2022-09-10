@@ -1,12 +1,12 @@
 #include "Board.h"
 #include "Window.h"
 
-
+int Board::BoxWidthandHigth;
 Board::Board()
 {
-	gameboard = new Box * [rowBoxNmbersandCols];
+	gameboxess = new Box * [rowBoxNmbersandCols];
 	for (int i = 0; i < rowBoxNmbersandCols; ++i) {
-		gameboard[i] = new Box[rowBoxNmbersandCols];
+		gameboxess[i] = new Box[rowBoxNmbersandCols];
 	}
 
 
@@ -18,7 +18,7 @@ void Board::RenderBoard()
 	{
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
-			gameboard[i][j].RenderBox();
+			gameboxess[i][j].RenderBox();
 		}
 	}
 }
@@ -26,26 +26,30 @@ void Board::RenderBoard()
 void Board::init()
 {
 
-	int BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
+	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
 	BoxWidthandHigth /= rowBoxNmbersandCols;
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
-		std::vector<Box> oneRow;
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
-			SDL_Color boxColor = (i + j) % 1 == 0 ? Color1 : Color2;
-			gameboard[i][j] = { i * BoxWidthandHigth,j * BoxWidthandHigth,i * BoxWidthandHigth + BoxWidthandHigth,j * BoxWidthandHigth + BoxWidthandHigth ,boxColor };
-			//oneRow.push_back({ i * BoxWidthandHigth,j * BoxWidthandHigth,i * BoxWidthandHigth + BoxWidthandHigth,j * BoxWidthandHigth + BoxWidthandHigth ,boxColor });
+			SDL_Color boxColor = (i + j) % 2 == 0 ? Color1 : Color2;
+			gameboxess[i][j] = { i * BoxWidthandHigth,j * BoxWidthandHigth,i * BoxWidthandHigth + BoxWidthandHigth,j * BoxWidthandHigth + BoxWidthandHigth ,boxColor };
 		}
-		//gameboard.push_back(oneRow); ///cloud be worng somthin with the memory leaks
 	}
+
+}
+
+void Board::resize()
+{
+	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
+	BoxWidthandHigth /= rowBoxNmbersandCols;
 
 }
 
 Board::~Board() {
 
 	for (int i = 0; i < rowBoxNmbersandCols; ++i) {
-		delete[] gameboard[i];
+		delete[] gameboxess[i];
 	}
-	delete[] gameboard;
+	delete[] gameboxess;
 }
