@@ -4,22 +4,24 @@
 int Board::BoxWidthandHigth;
 Board::Board()
 {
-	gameboxess = new Box * [rowBoxNmbersandCols];
-	for (int i = 0; i < rowBoxNmbersandCols; ++i) {
-		gameboxess[i] = new Box[rowBoxNmbersandCols];
-	}
 }
 void Board::init()
 {
 	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
 	BoxWidthandHigth /= rowBoxNmbersandCols;
+
+
+
+
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
+		std::vector<Box> temp;
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
 			SDL_Color boxColor = (i + j) % 2 == 0 ? Color1 : Color2;
-			gameboxess[i][j] = { i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,boxColor };
+			temp.push_back({ i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,boxColor });
 		}
+		gameboxess.push_back(temp);
 	}
 
 }
@@ -63,12 +65,7 @@ void Board::RenderBox(Box* boxtorender)
 
 Board::~Board() {
 
-	for (int i = 0; i < rowBoxNmbersandCols; ++i) {
-		delete[] gameboxess[i];
-		std::cout << "gameboxess[" << i << "] is deleted" << std::endl;
-	}
-	delete[] gameboxess;
-	std::cout << "gameboxess is deleted" << std::endl;
+
 
 }
 

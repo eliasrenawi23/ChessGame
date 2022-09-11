@@ -1,9 +1,15 @@
 #include <iostream>
 #include <SDL.h>
 #include "Window.h"
+#include <vector>
 
 using namespace std;
+
 int main(int argc, char* args[]) {
+
+
+
+
 
 	static Window screen;
 	if (screen.init() == false) {
@@ -21,7 +27,7 @@ int main(int argc, char* args[]) {
 		}
 	}
 	screen.close();
-
+	
 
 	return 1;
 }
