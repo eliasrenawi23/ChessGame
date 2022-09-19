@@ -46,7 +46,6 @@ SDL_Renderer* Window::m_renderer = NULL;
 		}
 		m_gamBoard->init();
 
-		std::cout << SCREEN_WIDTH << " "<<SCREEN_HEIGHT << std::endl;
 
 		return  true;
 	}

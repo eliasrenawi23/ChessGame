@@ -2,7 +2,7 @@
 #include "Window.h"
 
 int Board::BoxWidthandHigth;
-Board::Board()
+Board::Board(): whitePlayer(NULL), blackPlayer(NULL)
 {
 }
 void Board::init()
@@ -11,7 +11,10 @@ void Board::init()
 	BoxWidthandHigth /= rowBoxNmbersandCols;
 
 
-
+	whitePlayer = new Player(PlayerColor::WHITE);
+	whitePlayer->init();
+	blackPlayer = new Player(PlayerColor::BLACK);
+	blackPlayer->init();
 
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
@@ -23,6 +26,7 @@ void Board::init()
 		}
 		gameboxess.push_back(temp);
 	}
+
 
 }
 
@@ -65,8 +69,8 @@ void Board::RenderBox(Box* boxtorender)
 
 Board::~Board() {
 
-
-
+	delete whitePlayer;
+	delete blackPlayer;
 }
 
 

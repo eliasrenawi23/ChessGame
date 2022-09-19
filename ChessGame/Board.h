@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 #include "Box.h"
+#include "Player.h"
+#include "PlayerColor.h"
 #include <vector>
 
 
@@ -12,8 +14,10 @@ public:
 	const  SDL_Color Color1 = { 255,255,255,SDL_ALPHA_OPAQUE };  //white (255,255,255)
 	const  SDL_Color Color2 = { 118,150, 86, SDL_ALPHA_OPAQUE }; //green(118,150,86)
 private:
-
+	Player* whitePlayer;
+	Player* blackPlayer;
 	std::vector<std::vector<Box>> gameboxess;
+
 
 public:
 	Board();
