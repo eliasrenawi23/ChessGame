@@ -1,10 +1,13 @@
 #include "Knight.h"
 
-Knight::Knight(int x, int y)
+
+
+Knight::Knight(Box* loc)
 {
-	x_coordinate = x;
-	y_coordinate = y;
+	location = loc;
 }
+
+
 
 void Knight::moveAndTake()
 {

@@ -1,10 +1,13 @@
 #include "Queen.h"
 
-Queen::Queen(int x, int y)
+
+
+Queen::Queen(Box* loc)
 {
-	x_coordinate = x;
-	y_coordinate = y;
+	location = loc;
 }
+
+
 
 void Queen::moveAndTake()
 {

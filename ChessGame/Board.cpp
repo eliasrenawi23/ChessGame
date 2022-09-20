@@ -2,7 +2,8 @@
 #include "Window.h"
 
 int Board::BoxWidthandHigth;
-Board::Board(): whitePlayer(NULL), blackPlayer(NULL)
+std::vector<std::vector<Box >> Board::gameboxess;
+Board::Board() : whitePlayer(NULL), blackPlayer(NULL)
 {
 }
 void Board::init()
@@ -11,21 +12,21 @@ void Board::init()
 	BoxWidthandHigth /= rowBoxNmbersandCols;
 
 
-	whitePlayer = new Player(PlayerColor::WHITE);
-	whitePlayer->init();
-	blackPlayer = new Player(PlayerColor::BLACK);
-	blackPlayer->init();
-
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
 		std::vector<Box> temp;
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
-			SDL_Color boxColor = (i + j) % 2 == 0 ? Color1 : Color2;
-			temp.push_back({ i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,boxColor });
+			temp.push_back({ i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,(i + j) % 2 == 0 ? Color1 : Color2 });
 		}
 		gameboxess.push_back(temp);
 	}
+
+
+	whitePlayer = new Player(PlayerColor::WHITE);
+	whitePlayer->init();
+	blackPlayer = new Player(PlayerColor::BLACK);
+	blackPlayer->init();
 
 
 }
@@ -64,7 +65,6 @@ void Board::RenderBox(Box* boxtorender)
 	highlightRect.x = boxtorender->x;
 	highlightRect.y = boxtorender->y;
 	SDL_RenderFillRect(Window::m_renderer, &highlightRect);
-
 }
 
 Board::~Board() {

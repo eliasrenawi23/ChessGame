@@ -5,7 +5,7 @@ class Knight :
 {
 
 public:
-    Knight(int x, int y);
+    Knight(Box* loc);
     void moveAndTake() override;
     ~Knight();
 };

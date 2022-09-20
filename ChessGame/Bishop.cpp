@@ -1,10 +1,11 @@
 #include "Bishop.h"
 
-Bishop::Bishop(int x, int y)
+
+Bishop::Bishop(Box* loc)
 {
-	x_coordinate = x;
-	y_coordinate = y;
+	location = loc;
 }
+
 
 void Bishop::moveAndTake()
 {

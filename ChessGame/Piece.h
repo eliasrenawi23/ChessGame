@@ -1,12 +1,11 @@
 #pragma once
+#include "Box.h"
 class Piece
 {
 
 protected:
-	int x_coordinate;
-	int y_coordinate;
 
-	//box *location;
+	Box *location;
 public:
 
 	Piece();

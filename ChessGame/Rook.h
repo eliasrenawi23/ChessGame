@@ -5,7 +5,7 @@ class Rook :
 {
 
 public:
-    Rook(int x, int y);
+    Rook(Box* loc);
     void moveAndTake() override;
     ~Rook();
 };

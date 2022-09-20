@@ -1,10 +1,12 @@
 #include "Rook.h"
 
-Rook::Rook(int x, int y)
+
+
+Rook::Rook(Box* loc)
 {
-	x_coordinate = x;
-	y_coordinate = y;
+	location = loc;
 }
+
 
 void Rook::moveAndTake()
 {

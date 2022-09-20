@@ -101,10 +101,10 @@ SDL_Renderer* Window::m_renderer = NULL;
 		//If height is smaller.
 		int squareWidth;
 		if (Width > Height) {
-			squareWidth = .8 * Height;
+			squareWidth = (int).8 * Height;
 		}
 		else {
-			squareWidth = .8 * Width;
+			squareWidth = (int).8 * Width;
 		}
 		Window::SCREEN_WIDTH = Window::SCREEN_HEIGHT = squareWidth;
 	}

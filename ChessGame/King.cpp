@@ -1,10 +1,13 @@
 #include "King.h"
 
-King::King(int x, int y)
+
+
+King::King(Box* loc)
 {
-	x_coordinate = x;
-	y_coordinate = y;
+	location = loc;
 }
+
+
 
 void King::moveAndTake()
 {

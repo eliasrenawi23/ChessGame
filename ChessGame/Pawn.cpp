@@ -1,10 +1,13 @@
 #include "Pawn.h"
 
-Pawn::Pawn(int x, int y)
+
+
+Pawn::Pawn(Box* loc)
 {
-	x_coordinate = x;
-	y_coordinate = y;
+	location = loc;
 }
+
+
 
 void Pawn::moveAndTake()
 {

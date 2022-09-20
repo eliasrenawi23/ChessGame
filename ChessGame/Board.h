@@ -13,11 +13,11 @@ public:
 	static int BoxWidthandHigth;
 	const  SDL_Color Color1 = { 255,255,255,SDL_ALPHA_OPAQUE };  //white (255,255,255)
 	const  SDL_Color Color2 = { 118,150, 86, SDL_ALPHA_OPAQUE }; //green(118,150,86)
+	static std::vector<std::vector<Box >> gameboxess;
+
 private:
 	Player* whitePlayer;
 	Player* blackPlayer;
-	std::vector<std::vector<Box>> gameboxess;
-
 
 public:
 	Board();

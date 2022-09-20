@@ -5,7 +5,7 @@ class King :
 {
 
 public:
-    King(int x, int y);
+    King(Box* loc);
     void moveAndTake() override;
     ~King();
 };

@@ -6,7 +6,7 @@ class Bishop :
 
 
 public:
-    Bishop(int x, int y);
+    Bishop(Box* loc);
     void moveAndTake() override;
     ~Bishop();
 };

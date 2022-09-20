@@ -1,5 +1,14 @@
-﻿  main.cpp
+﻿  Bishop.cpp
+  Board.cpp
+  Box.cpp
+  King.cpp
+  Knight.cpp
+  main.cpp
   Pawn.cpp
   Piece.cpp
+  Player.cpp
+  Queen.cpp
+  Rook.cpp
+  Window.cpp
   Generating Code...
   ChessGame.vcxproj -> C:\Users\123\Documents\GitHub\ChessGame\x64\Debug\ChessGame.exe

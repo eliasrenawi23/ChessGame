@@ -6,7 +6,7 @@ class Pawn :
 
 
 public:
-    Pawn(int x, int y);
+    Pawn(Box *loc);
      void moveAndTake() override;
      ~Pawn();
 };
