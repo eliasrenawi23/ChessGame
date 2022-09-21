@@ -22,6 +22,8 @@ private:
 public:
 	Board();
 	void RenderBoard();//torendr all of the boxes 
+	void RenderPieces();//torendr all of the pieces 
+
 	void init();//init all of the boxes 
 	void resize();
 	~Board();

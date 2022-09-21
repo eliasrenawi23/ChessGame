@@ -12,8 +12,10 @@ SDL_Renderer* Window::m_renderer = NULL;
 
 	bool Window::init() {
 
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 			SDL_Quit();
+			std::cout << "SDL_Init" << std::endl;
+
 			return false;
 		}
 		m_window = SDL_CreateWindow("Chess",
@@ -21,6 +23,8 @@ SDL_Renderer* Window::m_renderer = NULL;
 
 		if (m_window == NULL) {
 			SDL_Quit();
+			std::cout << "m_window" << std::endl;
+
 			return false;
 		}
 		calculateInitialWindowDimensions();
@@ -32,19 +36,32 @@ SDL_Renderer* Window::m_renderer = NULL;
 		if (m_renderer == NULL) {
 			SDL_DestroyWindow(m_window);
 			SDL_Quit();
+			std::cout << "m_renderer" << std::endl;
+
 			return false;
 		}
-		//SDL_Color drawColor = { 255, 255, 255, SDL_ALPHA_OPAQUE };//white
-		//SDL_SetRenderDrawColor(m_renderer, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
-		m_gamBoard = new Board();
-
-		if (m_gamBoard == NULL) {
+		if (!IMG_Init(IMG_INIT_PNG)& IMG_INIT_PNG) {
+			std::cout << IMG_GetError() << std::endl;
 			SDL_DestroyRenderer(m_renderer);
 			SDL_DestroyWindow(m_window);
 			SDL_Quit();
 			return false;
 		}
+	     
+		m_gamBoard = new Board();
+		if (m_gamBoard == NULL) {
+			SDL_DestroyRenderer(m_renderer);
+			SDL_DestroyWindow(m_window);
+			SDL_Quit();
+			std::cout << "m_renderer" << std::endl;
+
+			return false;
+		}
 		m_gamBoard->init();
+
+
+
+
 
 
 		return  true;
@@ -65,6 +82,8 @@ SDL_Renderer* Window::m_renderer = NULL;
 	
 
 			}
+			SDL_RenderClear(m_renderer);
+
 
 
 		}

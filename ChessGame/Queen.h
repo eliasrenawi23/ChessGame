@@ -7,6 +7,8 @@ class Queen :
 public:
     Queen(Box *loc);
     void moveAndTake() override;
+    void render()override;
+
     ~Queen();
 };
 

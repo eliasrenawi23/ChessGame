@@ -10,6 +10,10 @@ Bishop::Bishop(Box* loc)
 void Bishop::moveAndTake()
 {
 }
+void Bishop::render()
+{
+
+}
 
 Bishop::~Bishop()
 {

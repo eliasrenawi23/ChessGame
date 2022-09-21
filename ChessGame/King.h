@@ -7,6 +7,8 @@ class King :
 public:
     King(Box* loc);
     void moveAndTake() override;
+    void render()override;
+
     ~King();
 };
 

@@ -20,6 +20,7 @@ private:
 
 public:
 	Player(PlayerColor color );
+	std::vector<Piece*> getPieces();
 	void init();
 	~Player();
 

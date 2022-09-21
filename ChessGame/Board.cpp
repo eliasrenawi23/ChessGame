@@ -55,7 +55,18 @@ void Board::RenderBoard()
 			RenderBox(&gameboxess[i][j]);
 		}
 	}
+	RenderPieces();
 }
+void Board::RenderPieces()
+{
+	std::vector<Piece*> WhitePieces = whitePlayer->getPieces();
+	for (int  i = 0; i < WhitePieces.size(); i++)
+	{
+		WhitePieces[i]->render();
+	}
+
+}
+
 void Board::RenderBox(Box* boxtorender)
 {
 	SDL_Rect highlightRect;
@@ -72,5 +83,7 @@ Board::~Board() {
 	delete whitePlayer;
 	delete blackPlayer;
 }
+
+
 
 

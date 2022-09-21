@@ -7,6 +7,8 @@ class Knight :
 public:
     Knight(Box* loc);
     void moveAndTake() override;
+    void render()override;
+
     ~Knight();
 };
 

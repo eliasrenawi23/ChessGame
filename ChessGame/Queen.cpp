@@ -12,7 +12,10 @@ Queen::Queen(Box* loc)
 void Queen::moveAndTake()
 {
 }
+void Queen::render()
+{
 
+}
 Queen::~Queen()
 {
 }

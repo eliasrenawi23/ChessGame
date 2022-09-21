@@ -16,7 +16,10 @@ int main(int argc, char* args[]) {
 	if (screen.init() == false) {
 		cout << "Could not initialising SDL:  " << SDL_GetError() << "\n" << endl;
 	}
-	cout << " initialising SDL is okey:  " << "\n" << endl;
+	else {
+		cout << " initialising SDL is okey:  " << "\n" << endl;
+
+	}
 
 
 	while (true) {

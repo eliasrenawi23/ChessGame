@@ -12,7 +12,10 @@ Knight::Knight(Box* loc)
 void Knight::moveAndTake()
 {
 }
+void Knight::render()
+{
 
+}
 Knight::~Knight()
 {
 }

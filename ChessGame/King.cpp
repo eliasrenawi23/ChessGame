@@ -12,6 +12,10 @@ King::King(Box* loc)
 void King::moveAndTake()
 {
 }
+void King::render()
+{
+
+}
 
 King::~King()
 {

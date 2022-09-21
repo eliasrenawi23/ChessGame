@@ -11,6 +11,10 @@ Rook::Rook(Box* loc)
 void Rook::moveAndTake()
 {
 }
+void Rook::render()
+{
+
+}
 
 Rook::~Rook()
 {

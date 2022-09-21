@@ -7,6 +7,7 @@ class Rook :
 public:
     Rook(Box* loc);
     void moveAndTake() override;
+    void render()override;
     ~Rook();
 };
 
