@@ -5,9 +5,8 @@ class Queen :
 {
 
 public:
-    Queen(Box *loc);
+    Queen(Box *loc, PlayerColor color);
     void moveAndTake() override;
-    void render()override;
 
     ~Queen();
 };

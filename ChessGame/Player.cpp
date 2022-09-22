@@ -17,26 +17,26 @@ std::vector<Piece*> Player::getPieces()
 
 void Player::init()
 {
-	int PawnYPostion = (color == PlayerColor::BLACK) ? 6 : 1;
-	int restofPiecesYPostion = (color == PlayerColor::BLACK) ? 7 : 0;
+	int PawnYPostion = (color == PlayerColor::BLACK) ? 1 : 6;
+	int restofPiecesYPostion = (color == PlayerColor::BLACK) ? 0 : 7;
 
 
 	for (int x = 0; x < 8; x++) {
-		Pieces.push_back(new Pawn(&(Board::gameboxess[x][PawnYPostion])));
+		Pieces.push_back(new Pawn(&(Board::gameboxess[x][PawnYPostion]),color));
 		//std::cout << Board::gameboxess[PawnYPostion][2].x << " " << Board::gameboxess[PawnYPostion][2].y << std::endl;
 
 	}
-	/*Pieces.push_back(new Bishop(&(Board::gameboxess[restofPiecesYPostion][2])));
-	Pieces.push_back(new Bishop(&(Board::gameboxess[restofPiecesYPostion][5])));
+	Pieces.push_back(new Bishop(&(Board::gameboxess[2][restofPiecesYPostion]), color));
+	Pieces.push_back(new Bishop(&(Board::gameboxess[5][restofPiecesYPostion]), color));
 
-	Pieces.push_back(new Knight(&(Board::gameboxess[restofPiecesYPostion][1])));
-	Pieces.push_back(new Knight(&(Board::gameboxess[restofPiecesYPostion][6])));
+	Pieces.push_back(new Knight(&(Board::gameboxess[1][restofPiecesYPostion]), color));
+	Pieces.push_back(new Knight(&(Board::gameboxess[6][restofPiecesYPostion]), color));
 
-	Pieces.push_back(new Rook(&(Board::gameboxess[restofPiecesYPostion][0])));
-	Pieces.push_back(new Rook(&(Board::gameboxess[restofPiecesYPostion][7])));
+	Pieces.push_back(new Rook(&(Board::gameboxess[0][restofPiecesYPostion]), color));
+	Pieces.push_back(new Rook(&(Board::gameboxess[7][restofPiecesYPostion]), color));
 
-	Pieces.push_back(new Queen(&(Board::gameboxess[restofPiecesYPostion][3])));
-	Pieces.push_back(new King(&(Board::gameboxess[restofPiecesYPostion][4])));*/
+	Pieces.push_back(new Queen(&(Board::gameboxess[3][restofPiecesYPostion]), color));
+	Pieces.push_back(new King(&(Board::gameboxess[4][restofPiecesYPostion]), color));
 }
 
 Player::~Player()

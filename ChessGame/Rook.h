@@ -5,9 +5,8 @@ class Rook :
 {
 
 public:
-    Rook(Box* loc);
+    Rook(Box* loc, PlayerColor color);
     void moveAndTake() override;
-    void render()override;
     ~Rook();
 };
 

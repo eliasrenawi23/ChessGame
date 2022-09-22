@@ -1,12 +1,11 @@
 #include "Piece.h"
 #include "Window.h"
-
-Piece::Piece() :location(NULL)/*, surface(NULL)*/
+Piece::Piece() :location(NULL), texture(NULL)
 {
 }
 
 
-void Piece::renderPiece(SDL_Texture* texture)
+void Piece::renderPiece()
 {
 	int w;
 	SDL_QueryTexture(texture, NULL, NULL, &w, &w);
@@ -15,8 +14,8 @@ void Piece::renderPiece(SDL_Texture* texture)
 	fromRect.h = w;
 	fromRect.x = fromRect.y = 0;
 
-	toRect.w = location->size * 0.8;
-	toRect.h = location->size * 0.8;
+	toRect.w = location->size ;
+	toRect.h = location->size ;
 
 	toRect.x = location->x;
 	toRect.y = location->y;
@@ -26,5 +25,5 @@ void Piece::renderPiece(SDL_Texture* texture)
 
 Piece::~Piece()
 {
-
+	SDL_DestroyTexture(texture);
 }

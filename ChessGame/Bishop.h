@@ -6,9 +6,8 @@ class Bishop :
 
 
 public:
-    Bishop(Box* loc);
+    Bishop(Box* loc, PlayerColor color);
     void moveAndTake() override;
-    void render()override;
 
     ~Bishop();
 };

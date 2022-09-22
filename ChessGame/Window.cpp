@@ -1,135 +1,124 @@
 #include "Window.h"
 
-int Window::SCREEN_WIDTH = 800;
-int Window::SCREEN_HEIGHT = 600;
+int Window::SCREEN_WIDTH = 300;
+int Window::SCREEN_HEIGHT = 300;
 SDL_Renderer* Window::m_renderer = NULL;
 
-	Window::Window() :
-		m_window(NULL), m_texture(NULL), m_gamBoard(NULL) {
+Window::Window() :
+	m_window(NULL), m_texture(NULL), m_gamBoard(NULL) {
 
+}
+
+
+bool Window::init() {
+
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+		SDL_Quit();
+		std::cout << "SDL_Init" << std::endl;
+
+		return false;
 	}
+	m_window = SDL_CreateWindow("Chess",
+		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
-
-	bool Window::init() {
-
-		if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-			SDL_Quit();
-			std::cout << "SDL_Init" << std::endl;
-
-			return false;
-		}
-		m_window = SDL_CreateWindow("Chess",
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-
-		if (m_window == NULL) {
-			SDL_Quit();
-			std::cout << "m_window" << std::endl;
-
-			return false;
-		}
-		calculateInitialWindowDimensions();
-		SDL_SetWindowResizable(m_window, SDL_TRUE);
-		SDL_SetWindowMinimumSize(m_window, SCREEN_MIN_WIDTH, SCREEN_MIN_HEIGHT);
-
-		m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC);
-
-		if (m_renderer == NULL) {
-			SDL_DestroyWindow(m_window);
-			SDL_Quit();
-			std::cout << "m_renderer" << std::endl;
-
-			return false;
-		}
-		if (!IMG_Init(IMG_INIT_PNG)& IMG_INIT_PNG) {
-			std::cout << IMG_GetError() << std::endl;
-			SDL_DestroyRenderer(m_renderer);
-			SDL_DestroyWindow(m_window);
-			SDL_Quit();
-			return false;
-		}
-	     
-		m_gamBoard = new Board();
-		if (m_gamBoard == NULL) {
-			SDL_DestroyRenderer(m_renderer);
-			SDL_DestroyWindow(m_window);
-			SDL_Quit();
-			std::cout << "m_renderer" << std::endl;
-
-			return false;
-		}
-		m_gamBoard->init();
-
-
-
-
-
-
-		return  true;
+	if (m_window == NULL) {
+		SDL_Quit();
+		std::cout << "m_window" << std::endl;
+		return false;
 	}
-	bool Window::processEvents() {
-		SDL_Event event;
+	calculateInitialWindowDimensions();
+	SDL_SetWindowResizable(m_window, SDL_TRUE);
+	SDL_SetWindowMinimumSize(m_window, SCREEN_MIN_WIDTH, SCREEN_MIN_HEIGHT);
 
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-			case SDL_QUIT:
-				return  false;
-				break;
-			case SDL_WINDOWEVENT:
-				if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-					resizeWindow(event.window.data1, event.window.data2);
-				}
-				break;
-	
+	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC);
 
-			}
-			SDL_RenderClear(m_renderer);
+	if (m_renderer == NULL) {
+		SDL_DestroyWindow(m_window);
+		SDL_Quit();
+		std::cout << "m_renderer" << std::endl;
 
-
-
-		}
-		return  true;
-
+		return false;
 	}
-	void Window::close() {
-
-		delete (m_gamBoard);
+	if (!IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) {
+		std::cout << IMG_GetError() << std::endl;
 		SDL_DestroyRenderer(m_renderer);
 		SDL_DestroyWindow(m_window);
 		SDL_Quit();
+		return false;
 	}
 
-	void Window::updateRender() {
+	m_gamBoard = new Board();
+	if (m_gamBoard == NULL) {
+		SDL_DestroyRenderer(m_renderer);
+		SDL_DestroyWindow(m_window);
+		SDL_Quit();
+		std::cout << "m_renderer" << std::endl;
 
-		//SDL_Color drawColor = { 255, 255, 255, SDL_ALPHA_OPAQUE };//blue
-		//SDL_SetRenderDrawColor(m_renderer, drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+		return false;
+	}
+	m_gamBoard->init();
+	return  true;
+}
+bool Window::processEvents() {
+	SDL_Event event;
 
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+		case SDL_QUIT:
+			return  false;
+			break;
+		case SDL_WINDOWEVENT:
+			if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+				resizeWindow(event.window.data1, event.window.data2);
+			}
+			break;
+
+
+		}
 		SDL_RenderClear(m_renderer);
-		m_gamBoard->RenderBoard();
-		SDL_RenderPresent(m_renderer);
+
+
+
 	}
+	return  true;
+
+}
+void Window::close() {
+
+	delete (m_gamBoard);
+	SDL_DestroyRenderer(m_renderer);
+	SDL_DestroyWindow(m_window);
+	SDL_Quit();
+}
+
+void Window::updateRender() {
+	SDL_RenderClear(m_renderer);
+	m_gamBoard->RenderBoard();
+	SDL_RenderPresent(m_renderer);
+}
 
 
-	//sets the initial height and width to be a square that is 80% of the smallest dimension.
-	void Window::calculateInitialWindowDimensions() {
-		SDL_DisplayMode DM;
-		SDL_GetCurrentDisplayMode(0, &DM);
-		auto Width = DM.w;
-		auto Height = DM.h;
+//sets the initial height and width to be a square that is 80% of the smallest dimension.
+void Window::calculateInitialWindowDimensions() {
+	SDL_DisplayMode DM;
+	SDL_GetCurrentDisplayMode(0, &DM);
+	auto Width = DM.w;
+	auto Height = DM.h;
 
 
-		//If height is smaller.
-		int squareWidth;
-		if (Width > Height) {
-			squareWidth = (int).8 * Height;
-		}
-		else {
-			squareWidth = (int).8 * Width;
-		}
-		Window::SCREEN_WIDTH = Window::SCREEN_HEIGHT = squareWidth;
+	//If height is smaller.
+	int squareWidth;
+	if (Width > Height) {
+		squareWidth = (int).8 * Height;
 	}
-	void Window::resizeWindow(int newWidth, int newHeight) {
-		Window::SCREEN_HEIGHT = newHeight;
-		Window::SCREEN_WIDTH = newWidth;
-		m_gamBoard->resize();
+	else {
+		squareWidth = (int).8 * Width;
 	}
+	Window::SCREEN_WIDTH = Window::SCREEN_HEIGHT = squareWidth;
+}
+void Window::resizeWindow(int newWidth, int newHeight) {
+	Window::SCREEN_HEIGHT = newHeight;
+	Window::SCREEN_WIDTH = newWidth;
+	m_gamBoard->resize();
+}
 

@@ -59,11 +59,17 @@ void Board::RenderBoard()
 }
 void Board::RenderPieces()
 {
+	std::vector<Piece*> BlackPieces = blackPlayer->getPieces();
+	for (int i = 0; i < BlackPieces.size(); i++)
+	{
+		BlackPieces[i]->renderPiece();
+	}
 	std::vector<Piece*> WhitePieces = whitePlayer->getPieces();
 	for (int  i = 0; i < WhitePieces.size(); i++)
 	{
-		WhitePieces[i]->render();
+		WhitePieces[i]->renderPiece();
 	}
+
 
 }
 

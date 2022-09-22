@@ -5,9 +5,8 @@ class Knight :
 {
 
 public:
-    Knight(Box* loc);
+    Knight(Box* loc, PlayerColor color);
     void moveAndTake() override;
-    void render()override;
 
     ~Knight();
 };

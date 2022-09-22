@@ -1,26 +1,24 @@
 #include "Pawn.h"
-#include <SDL_image.h>
 #include "Window.h"
 
 
-
-SDL_Texture* Pawn::whitePawnTexture=NULL;
-Pawn::Pawn(Box* loc)
+Pawn::Pawn(Box* loc, PlayerColor color)
 {
 	location = loc;
+	this->color = color;
 	SDL_Surface* surface;
 
-	surface = IMG_Load("texture/pawnPic.png");
-	whitePawnTexture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
+	if (color == PlayerColor::BLACK) {
+		surface = IMG_Load("texture/BP.svg");
+	}
+	else {
+		surface = IMG_Load("texture/WP.svg");
+	}
+	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
 	SDL_FreeSurface(surface);
 }
 void Pawn::moveAndTake()
 {
-
-}
-void Pawn::render()
-{
-	renderPiece(whitePawnTexture);
 
 }
 

@@ -5,9 +5,8 @@ class King :
 {
 
 public:
-    King(Box* loc);
+    King(Box* loc, PlayerColor color);
     void moveAndTake() override;
-    void render()override;
 
     ~King();
 };
