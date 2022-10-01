@@ -5,8 +5,6 @@
 Pawn::Pawn(Box* loc, PlayerColor color)
 {
 	location = loc;
-	//std::cout << (loc)->x << " " << (loc)->y << std::endl;
-
 	this->color = color;
 	SDL_Surface* surface;
 
@@ -18,6 +16,7 @@ Pawn::Pawn(Box* loc, PlayerColor color)
 	}
 	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
 	SDL_FreeSurface(surface);
+
 }
 void Pawn::moveAndTake()
 {

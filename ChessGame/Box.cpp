@@ -13,6 +13,12 @@ Box::Box(int x, int y, int size, SDL_Color boxColor)
 }
 void Box::setPiece(Piece* p) {
 	piece = p;
+	piece->location = p->location;
+}
+
+Piece* Box::getPiece()
+{
+	return piece;
 }
 
 void Box::resize(int x, int y, int size)
