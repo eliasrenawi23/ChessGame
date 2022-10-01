@@ -11,6 +11,7 @@ void Board::init()
 	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
 	BoxWidthandHigth /= rowBoxNmbersandCols;
 
+	std::cout << BoxWidthandHigth << " " << BoxWidthandHigth << std::endl;
 
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
@@ -18,9 +19,12 @@ void Board::init()
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
 			temp.push_back({ i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,(i + j) % 2 == 0 ? Color1 : Color2 });
+
 		}
 		gameboxess.push_back(temp);
+
 	}
+
 
 
 	whitePlayer = new Player(PlayerColor::WHITE);

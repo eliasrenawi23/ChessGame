@@ -5,6 +5,8 @@
 Pawn::Pawn(Box* loc, PlayerColor color)
 {
 	location = loc;
+	//std::cout << (loc)->x << " " << (loc)->y << std::endl;
+
 	this->color = color;
 	SDL_Surface* surface;
 

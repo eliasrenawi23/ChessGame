@@ -67,10 +67,17 @@ bool Window::processEvents() {
 		case SDL_QUIT:
 			return  false;
 			break;
-		case SDL_WINDOWEVENT:
+		case SDL_WINDOWEVENT:  // for resizeing of the window
 			if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
 				resizeWindow(event.window.data1, event.window.data2);
 			}
+			break;
+		case SDL_MOUSEBUTTONUP: //mouse relesde
+			//std::cout << " MOUSE BUTTON UP" << event.motion.x << " " << event.motion.y << std::endl;
+			std::cout << " MOUSE BUTTON UP  " << event.motion.x /(SCREEN_WIDTH/8)<< " " << event.motion.y / (SCREEN_WIDTH / 8) << std::endl;
+			break;
+		case SDL_MOUSEBUTTONDOWN://mouse pressed
+			std::cout << " MOUSE BUTTON DOWN" << event.motion.x << " " << event.motion.y << std::endl;
 			break;
 
 
@@ -109,12 +116,13 @@ void Window::calculateInitialWindowDimensions() {
 	//If height is smaller.
 	int squareWidth;
 	if (Width > Height) {
-		squareWidth = (int).8 * Height;
+		squareWidth = (int)(0.8 * Height);
 	}
 	else {
-		squareWidth = (int).8 * Width;
+		squareWidth = (int)(0.8 * Width);
 	}
 	Window::SCREEN_WIDTH = Window::SCREEN_HEIGHT = squareWidth;
+
 }
 void Window::resizeWindow(int newWidth, int newHeight) {
 	Window::SCREEN_HEIGHT = newHeight;

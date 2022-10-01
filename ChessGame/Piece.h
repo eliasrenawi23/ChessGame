@@ -8,7 +8,7 @@
 class Piece
 {
 
-protected:
+public:
 
 	Box *location;
 	PlayerColor color;
@@ -20,4 +20,6 @@ public:
 	void renderPiece();
 	~Piece();
 };
+
+
 
