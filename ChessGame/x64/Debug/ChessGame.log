@@ -1,2 +1,5 @@
-﻿  Box.cpp
+﻿  main.cpp
+  Player.cpp
+  Queen.cpp
+  Generating Code...
   ChessGame.vcxproj -> C:\Users\123\Documents\GitHub\ChessGame\x64\Debug\ChessGame.exe

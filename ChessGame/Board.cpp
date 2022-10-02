@@ -3,7 +3,7 @@
 
 int Board::BoxWidthandHigth;
 std::vector<std::vector<Box >> Board::gameboxess;
-Board::Board() : whitePlayer(NULL), blackPlayer(NULL)
+Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true)
 {
 }
 void Board::init()
@@ -47,6 +47,29 @@ void Board::resize()
 			gameboxess[i][j].resize(i * BoxWidthandHigth, j * BoxWidthandHigth, BoxWidthandHigth);
 		}
 	}
+
+
+}
+void Board::play(int cor_x, int cor_y)
+{
+	std::cout << " cor_x cor_y MOUSE BUTTON UP or down : " << cor_x << " " << cor_y << std::endl;
+
+	if (gameboxess[cor_x][cor_y].getPiece() == NULL) { //this vox has no pice in it no action needed
+		std::cout << " this vox has no pice in it no action needed " << std::endl;
+		return;
+	}
+	if (playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::WHITE)) {
+		//to do get the player move
+		whitePlayer->play(gameboxess[cor_x][cor_y].getPiece());
+		playerTurn=!playerTurn; //change turns
+	}
+	else if (!playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::BLACK)) {
+		//to do get the player move
+		blackPlayer->play(gameboxess[cor_x][cor_y].getPiece());
+
+		playerTurn=!playerTurn; //change turns
+	}
+
 
 
 }
