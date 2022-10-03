@@ -19,8 +19,10 @@ Knight::Knight(Box* loc, PlayerColor color)
 
 
 
-void Knight::moveAndTake()
+std::vector<Box*> Knight::moveAndTake()
 {
+	return std::vector<Box*>();
+
 }
 
 Knight::~Knight()

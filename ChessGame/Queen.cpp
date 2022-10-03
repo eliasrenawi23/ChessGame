@@ -21,8 +21,10 @@ Queen::Queen(Box* loc, PlayerColor color)
 
 
 
-void Queen::moveAndTake()
+std::vector<Box*> Queen::moveAndTake()
 {
+	return std::vector<Box*>();
+
 }
 
 Queen::~Queen()

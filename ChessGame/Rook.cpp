@@ -20,8 +20,10 @@ Rook::Rook(Box* loc, PlayerColor color)
 }
 
 
-void Rook::moveAndTake()
+std::vector<Box*> Rook::moveAndTake()
 {
+	return std::vector<Box*>();
+
 }
 
 

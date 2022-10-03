@@ -19,12 +19,15 @@ private:
 	Player* whitePlayer;
 	Player* blackPlayer;
 	bool playerTurn; //false for black and true for white
+	std::vector<Box*> boxtoLight;
+
 
 public:
 	Board();
 	void play(int cor_x, int cor_y);
 	void RenderBoard();//torendr all of the boxes 
 	void RenderPieces();//torendr all of the pieces 
+	void highlightboxs(bool onOrOff);
 
 	void init();//init all of the boxes 
 	void resize();

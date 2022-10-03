@@ -60,17 +60,33 @@ void Board::play(int cor_x, int cor_y)
 	}
 	if (playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::WHITE)) {
 		//to do get the player move
-		whitePlayer->play(gameboxess[cor_x][cor_y].getPiece());
-		playerTurn=!playerTurn; //change turns
+		boxtoLight = whitePlayer->play(gameboxess[cor_x][cor_y].getPiece());
+		highlightboxs(true);
+		playerTurn = !playerTurn; //change turns
 	}
 	else if (!playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::BLACK)) {
 		//to do get the player move
 		blackPlayer->play(gameboxess[cor_x][cor_y].getPiece());
 
-		playerTurn=!playerTurn; //change turns
+		playerTurn = !playerTurn; //change turns
 	}
 
 
+}
+void Board::highlightboxs(bool onOrOff) {
+
+	if (onOrOff) {
+		for (int i = 0; i < boxtoLight.size(); i++) {
+
+			boxtoLight[i]->boxColor = { 64,191, 255, SDL_ALPHA_OPAQUE };
+
+		}
+	}
+	else {
+		for (int i = 0; i < boxtoLight.size(); i++) {
+			boxtoLight[i]->boxColor = boxtoLight[i]->originalColor;
+		}
+	}
 
 }
 void Board::RenderBoard()
@@ -92,7 +108,7 @@ void Board::RenderPieces()
 		BlackPieces[i]->renderPiece();
 	}
 	std::vector<Piece*> WhitePieces = whitePlayer->getPieces();
-	for (int  i = 0; i < WhitePieces.size(); i++)
+	for (int i = 0; i < WhitePieces.size(); i++)
 	{
 		WhitePieces[i]->renderPiece();
 	}

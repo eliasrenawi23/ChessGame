@@ -7,7 +7,7 @@ class Bishop :
 
 public:
     Bishop(Box* loc, PlayerColor color);
-    void moveAndTake() override;
+    std::vector<Box*> moveAndTake() override;
 
     ~Bishop();
 };

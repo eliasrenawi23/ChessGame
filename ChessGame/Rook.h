@@ -6,7 +6,7 @@ class Rook :
 
 public:
     Rook(Box* loc, PlayerColor color);
-    void moveAndTake() override;
+    std::vector<Box*> moveAndTake() override;
     ~Rook();
 };
 

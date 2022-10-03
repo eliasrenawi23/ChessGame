@@ -6,7 +6,7 @@ class Knight :
 
 public:
     Knight(Box* loc, PlayerColor color);
-    void moveAndTake() override;
+    std::vector<Box*> moveAndTake() override;
 
     ~Knight();
 };

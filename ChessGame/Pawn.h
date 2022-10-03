@@ -5,10 +5,14 @@
 class Pawn :
     public Piece
 {
+private:
+    bool firstMove;
+   // std::vector<Box*> legalmoves;
 
 public:
     Pawn(Box *loc, PlayerColor color);
-     void moveAndTake() override;
+    std::vector<Box*> moveAndTake() override;
+     //std::vector<Box*> movess();
      ~Pawn();
 };
 

@@ -8,8 +8,9 @@ Box::Box()  {
 
 }
 
-Box::Box(int x, int y, int size, SDL_Color boxColor)
-	:x(x), y(y), size(size), boxColor(boxColor), piece(NULL) {
+Box::Box(int x, int y, int size, SDL_Color originalColor)
+	:x(x), y(y), size(size), originalColor(originalColor), piece(NULL) {
+	boxColor = originalColor;
 }
 void Box::setPiece(Piece* p) {
 	piece = p;

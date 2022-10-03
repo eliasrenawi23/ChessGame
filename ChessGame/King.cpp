@@ -21,8 +21,10 @@ King::King(Box* loc ,PlayerColor color)
 
 
 
-void King::moveAndTake()
+std::vector<Box*> King::moveAndTake()
 {
+	return std::vector<Box*>();
+
 }
 
 

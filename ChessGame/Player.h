@@ -21,7 +21,7 @@ private:
 public:
 	Player(PlayerColor color );
 	std::vector<Piece*> getPieces();
-	void play(Piece* pieceToPlay);
+	std::vector<Box*> play(Piece* pieceToPlay);
 	void init();
 	~Player();
 

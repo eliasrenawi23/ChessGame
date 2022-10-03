@@ -20,8 +20,10 @@ Bishop::Bishop(Box* loc, PlayerColor color)
 }
 
 
-void Bishop::moveAndTake()
+std::vector<Box*> Bishop::moveAndTake()
 {
+	return std::vector<Box*>();
+
 }
 
 

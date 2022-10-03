@@ -6,7 +6,7 @@ class Queen :
 
 public:
     Queen(Box *loc, PlayerColor color);
-    void moveAndTake() override;
+    std::vector<Box*> moveAndTake() override;
 
     ~Queen();
 };

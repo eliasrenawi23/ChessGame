@@ -10,6 +10,8 @@ public:
 	int y;
 	int size;
 	SDL_Color boxColor; 
+	SDL_Color originalColor;
+
 
 private:
 	Piece* piece;
@@ -17,7 +19,7 @@ public:
 	Box();
 	void setPiece(Piece* p);
 	Piece* getPiece();
-	Box(int x, int y, int size, SDL_Color boxColor);
+	Box(int x, int y, int size, SDL_Color originalColor);
 	void resize(int x, int y, int size);
 	~Box();
 

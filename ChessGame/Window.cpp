@@ -73,15 +73,11 @@ bool Window::processEvents() {
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN://mouse pressed
-			//std::cout << " MOUSE BUTTON DOWN : " << event.motion.x / (SCREEN_WIDTH / 8) << " " << event.motion.y / (SCREEN_WIDTH / 8) << std::endl;
 			m_gamBoard->play(event.motion.x / (SCREEN_WIDTH / 8), event.motion.y / (SCREEN_WIDTH / 8));
 
 			break;
 		case SDL_MOUSEBUTTONUP: //mouse relesde
-			//std::cout << " MOUSE BUTTON UP" << event.motion.x << " " << event.motion.y << std::endl;
-			//std::cout << " MOUSE BUTTON UP : " << event.motion.x / (SCREEN_WIDTH / 8) << " " << event.motion.y / (SCREEN_WIDTH / 8) << std::endl;
-		//	m_gamBoard->play(event.motion.x / (SCREEN_WIDTH / 8), event.motion.y / (SCREEN_WIDTH / 8));
-
+			m_gamBoard->highlightboxs(false);
 			break;
 
 

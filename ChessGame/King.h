@@ -6,7 +6,7 @@ class King :
 
 public:
     King(Box* loc, PlayerColor color);
-    void moveAndTake() override;
+    std::vector<Box*> moveAndTake() override;
 
     ~King();
 };
