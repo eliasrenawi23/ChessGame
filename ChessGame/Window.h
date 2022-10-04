@@ -8,6 +8,7 @@
 	public:
 		  static int SCREEN_WIDTH; //width and hight are the same size;
 		  static int SCREEN_HEIGHT;
+		  static int SQUARE_SIZE;
 		  static SDL_Renderer* m_renderer;
 
 		const static int SCREEN_MIN_HEIGHT = 400;

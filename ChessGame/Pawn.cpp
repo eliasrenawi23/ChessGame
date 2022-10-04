@@ -24,16 +24,11 @@ std::vector<Box*> Pawn::moveAndTake()
 	int diraction = (color == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
 	//std::vector<Box*> legalMoves;
 	if (firstMove) {
-
 		legalMoves.push_back(& Board::gameboxess[(location->x) / Board::BoxWidthandHigth][((location->y) / Board::BoxWidthandHigth) - 2*diraction]);
-		legalMoves.push_back(& Board::gameboxess[(location->x) / Board::BoxWidthandHigth][((location->y) / Board::BoxWidthandHigth) - diraction]);
-
+		firstMove = false;
 	}
-	else
-	{
 		legalMoves.push_back(&Board::gameboxess[(location->x) / Board::BoxWidthandHigth][((location->y) / Board::BoxWidthandHigth) - diraction]);
-	}
-	//location = &Board::gameboxess[(location->x) / Board::BoxWidthandHigth][((location->y) / Board::BoxWidthandHigth)- diraction];
+	
 	return legalMoves;
 }
 

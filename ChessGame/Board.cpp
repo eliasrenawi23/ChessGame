@@ -66,8 +66,8 @@ void Board::play(int cor_x, int cor_y)
 	}
 	else if (!playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::BLACK)) {
 		//to do get the player move
-		blackPlayer->play(gameboxess[cor_x][cor_y].getPiece());
-
+		boxtoLight = blackPlayer->play(gameboxess[cor_x][cor_y].getPiece());
+		highlightboxs(true);
 		playerTurn = !playerTurn; //change turns
 	}
 

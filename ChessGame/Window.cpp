@@ -2,6 +2,7 @@
 
 int Window::SCREEN_WIDTH = 300;
 int Window::SCREEN_HEIGHT = 300;
+int Window::SQUARE_SIZE = 300;
 SDL_Renderer* Window::m_renderer = NULL;
 
 Window::Window() :
@@ -70,10 +71,12 @@ bool Window::processEvents() {
 		case SDL_WINDOWEVENT:  // for resizeing of the window
 			if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
 				resizeWindow(event.window.data1, event.window.data2);
+
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN://mouse pressed
-			m_gamBoard->play(event.motion.x / (SCREEN_WIDTH / 8), event.motion.y / (SCREEN_WIDTH / 8));
+			std::cout << event.motion.x <<" "<< SQUARE_SIZE << std::endl;
+			m_gamBoard->play(event.motion.x / (SCREEN_WIDTH / 8), event.motion.y / (SCREEN_HEIGHT / 8));
 
 			break;
 		case SDL_MOUSEBUTTONUP: //mouse relesde
@@ -123,11 +126,20 @@ void Window::calculateInitialWindowDimensions() {
 		squareWidth = (int)(0.8 * Width);
 	}
 	Window::SCREEN_WIDTH = Window::SCREEN_HEIGHT = squareWidth;
+	Window::SQUARE_SIZE = squareWidth;
+	std::cout << SCREEN_WIDTH << " " << SCREEN_HEIGHT << std::endl;
+
 
 }
 void Window::resizeWindow(int newWidth, int newHeight) {
 	Window::SCREEN_HEIGHT = newHeight;
 	Window::SCREEN_WIDTH = newWidth;
+	if (newWidth > newHeight) {
+		Window::SQUARE_SIZE =  newHeight;
+	}
+	else {
+		Window::SQUARE_SIZE = newWidth;
+	}
 	m_gamBoard->resize();
 }
 
