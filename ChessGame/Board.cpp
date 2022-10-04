@@ -50,29 +50,66 @@ void Board::resize()
 
 
 }
-void Board::play(int cor_x, int cor_y)
+void Board::getLegalMovs(int cor_x, int cor_y)
 {
-	std::cout << " cor_x cor_y MOUSE BUTTON UP or down : " << cor_x << " " << cor_y << std::endl;
+	int box_x = cor_x / (Window::SQUARE_SIZE / 8);
+	int box_y = cor_y / (Window::SQUARE_SIZE / 8);
+	if (cor_x > Window::SQUARE_SIZE || cor_y > Window::SQUARE_SIZE) {
+		std::cout << " outside " << box_x<<" "<<box_y << std::endl;
+		return;
+	}
+	std::cout << " box_x box_y MOUSE BUTTON Down : " <<box_x<<" " << box_y << std::endl;
 
-	if (gameboxess[cor_x][cor_y].getPiece() == NULL) { //this vox has no pice in it no action needed
+	if (gameboxess[box_x][box_y].getPiece() == NULL) { //this vox has no pice in it no action needed
 		std::cout << " this vox has no pice in it no action needed " << std::endl;
 		return;
 	}
-	if (playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::WHITE)) {
+	if (playerTurn && (gameboxess[box_x][box_y].getPiece()->color == PlayerColor::WHITE)) {
 		//to do get the player move
-		boxtoLight = whitePlayer->play(gameboxess[cor_x][cor_y].getPiece());
+		boxtoLight = whitePlayer->play(gameboxess[box_x][box_y].getPiece());
 		highlightboxs(true);
-		playerTurn = !playerTurn; //change turns
 	}
-	else if (!playerTurn && (gameboxess[cor_x][cor_y].getPiece()->color == PlayerColor::BLACK)) {
+	else if (!playerTurn && (gameboxess[box_x][box_y].getPiece()->color == PlayerColor::BLACK)) {
 		//to do get the player move
-		boxtoLight = blackPlayer->play(gameboxess[cor_x][cor_y].getPiece());
+		boxtoLight = blackPlayer->play(gameboxess[box_x][box_y].getPiece());
 		highlightboxs(true);
-		playerTurn = !playerTurn; //change turns
 	}
 
 
 }
+void  Board::play(int cor_x, int cor_y) {
+	int box_x = cor_x / (Window::SQUARE_SIZE / 8);
+	int box_y = cor_y / (Window::SQUARE_SIZE / 8);
+	if (cor_x > Window::SQUARE_SIZE || cor_y > Window::SQUARE_SIZE) {
+		std::cout << " out of range " << box_x << " " << box_y << std::endl;
+		return;
+	}
+	if (boxtoLight.empty() || boxtoLight[0]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[0]->y / (Window::SQUARE_SIZE / 8) == box_y) {
+		highlightboxs(false);
+		boxtoLight.clear();
+		return;
+	}
+	for (int i = 1; i < boxtoLight.size(); i++) {
+
+		if (boxtoLight[i]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[i]->y / (Window::SQUARE_SIZE / 8) == box_y) {
+			if (boxtoLight[i]->getPiece() != NULL) {
+				boxtoLight[i]->getPiece()->~Piece();
+				}
+				boxtoLight[0]->getPiece()->setLocation(boxtoLight[i]);
+				boxtoLight[i]->setPiece(boxtoLight[0]->getPiece());
+				boxtoLight[0]->setPiece(NULL);
+				playerTurn = !playerTurn; //change turns
+				break;
+			
+		
+		}
+	}
+	highlightboxs(false);
+	boxtoLight.clear();
+
+}
+
+
 void Board::highlightboxs(bool onOrOff) {
 
 	if (onOrOff) {

@@ -24,6 +24,7 @@ private:
 
 public:
 	Board();
+	void getLegalMovs(int cor_x, int cor_y);
 	void play(int cor_x, int cor_y);
 	void RenderBoard();//torendr all of the boxes 
 	void RenderPieces();//torendr all of the pieces 

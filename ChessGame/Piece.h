@@ -3,6 +3,7 @@
 #include <vector>
 #include "PlayerColor.h"
 #include <SDL_image.h>
+#include <iostream>
 
 
 
@@ -14,12 +15,13 @@ public:
 	Box *location;
 	PlayerColor color;
 	SDL_Texture* texture;
-	std::vector<Box*> legalMoves;
 public:
 	Piece();
+	Box* getLocation();
+	void setLocation(Box* loc);
 	virtual std::vector<Box*> moveAndTake() = 0;
 	void renderPiece();
-	~Piece();
+	virtual ~Piece() ;
 };
 
 

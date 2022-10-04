@@ -14,7 +14,7 @@ Box::Box(int x, int y, int size, SDL_Color originalColor)
 }
 void Box::setPiece(Piece* p) {
 	piece = p;
-	piece->location = p->location;
+	//piece->location = p->location;
 }
 
 Piece* Box::getPiece()

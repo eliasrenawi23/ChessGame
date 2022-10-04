@@ -2,7 +2,7 @@
 #include "Window.h"
 
 
-Pawn::Pawn(Box* loc, PlayerColor color):firstMove(true)
+Pawn::Pawn(Box* loc, PlayerColor color) :firstMove(true)
 {
 	location = loc;
 	this->color = color;
@@ -22,13 +22,36 @@ std::vector<Box*> Pawn::moveAndTake()
 {
 	std::cout << "Pawn clicked" << std::endl;
 	int diraction = (color == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
-	//std::vector<Box*> legalMoves;
-	if (firstMove) {
-		legalMoves.push_back(& Board::gameboxess[(location->x) / Board::BoxWidthandHigth][((location->y) / Board::BoxWidthandHigth) - 2*diraction]);
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	std::vector<Box*> legalMoves;
+	legalMoves.push_back(location); // put the pice in the first elemnt
+
+	//to do (must check for en passant) and pawn promotion
+	if (firstMove&& (Board::gameboxess[x][y - 2*diraction].getPiece() == NULL)) { //forword 2 boxes  
+		legalMoves.push_back(&Board::gameboxess[x][y - 2 * diraction]);
 		firstMove = false;
 	}
-		legalMoves.push_back(&Board::gameboxess[(location->x) / Board::BoxWidthandHigth][((location->y) / Board::BoxWidthandHigth) - diraction]);
-	
+	if (y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols&&(Board::gameboxess[x][y - diraction].getPiece() == NULL)) {
+		legalMoves.push_back(&Board::gameboxess[x][y - diraction]); // forword
+	}
+
+
+	if (x - 1 >= 0 && y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x - 1][y - diraction].getPiece() != NULL)) {
+		if ((&Board::gameboxess[x - 1][y - diraction])->getPiece()->color != color) {
+			legalMoves.push_back(&Board::gameboxess[x - 1][y - diraction]); //left corner
+		}
+	}
+	if (x + 1 < Board::rowBoxNmbersandCols && y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x + 1][y - diraction].getPiece() != NULL)) {
+		if ((&Board::gameboxess[x + 1][y - diraction])->getPiece()->color != color) {
+			legalMoves.push_back(&Board::gameboxess[x + 1][y - diraction]); //right corner
+		}
+	}
+	/*
+	location = &Board::gameboxess[x][y - diraction];
+	Board::gameboxess[x][y - diraction].setPiece(this);
+	Board::gameboxess[x][y].setPiece(NULL); // remove the pointer form the prev box
+	*/
 	return legalMoves;
 }
 
@@ -36,5 +59,6 @@ std::vector<Box*> Pawn::moveAndTake()
 
 Pawn::~Pawn()
 {
+	std::cout << " ~Pawn()" << std::endl;
 
 }

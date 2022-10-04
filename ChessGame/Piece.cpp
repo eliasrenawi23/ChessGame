@@ -4,6 +4,16 @@ Piece::Piece() :location(NULL), texture(NULL)
 {
 }
 
+Box* Piece::getLocation()
+{
+	return location;
+}
+
+void Piece::setLocation(Box* loc)
+{
+	location = loc;
+}
+
 
 void Piece::renderPiece()
 {
