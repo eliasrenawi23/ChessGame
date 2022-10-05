@@ -1,4 +1,15 @@
-﻿  Board.cpp
+﻿  Bishop.cpp
+  Board.cpp
+  Box.cpp
+  King.cpp
+  Knight.cpp
+  main.cpp
+  Pawn.cpp
   Piece.cpp
+  Player.cpp
+  Queen.cpp
+  Rook.cpp
+  Window.cpp
+C:\Users\123\Documents\GitHub\ChessGame\ChessGame\Window.cpp(43,32): warning C4806: '&': unsafe operation: no value of type 'bool' promoted to type 'IMG_InitFlags' can equal the given constant
   Generating Code...
   ChessGame.vcxproj -> C:\Users\123\Documents\GitHub\ChessGame\x64\Debug\ChessGame.exe
