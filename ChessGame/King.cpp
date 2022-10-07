@@ -3,7 +3,7 @@
 
 
 
-King::King(Box* loc ,PlayerColor color)
+King::King(Box* loc, PlayerColor color)
 {
 	location = loc;
 	this->color = color;
@@ -21,10 +21,31 @@ King::King(Box* loc ,PlayerColor color)
 
 
 
-std::vector<Box*> King::moveAndTake()
+std::set<Box*>  King::moveAndTake()
 {
-	return std::vector<Box*>();
+	std::cout << "King clicked" << std::endl;
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	int n = Board::rowBoxNmbersandCols;
+	std::set<Box*>  legalMoves;
+	legalMoves.insert(location);
 
+
+	for (int i = x - 1; i < n && i < (x + 2); i++) {
+		if (i < 0)continue;
+		for (int j = y - 1; j < n && j < (y + 2); j++) {
+			if (j < 0)continue;
+			if (Board::gameboxess[i][j].getPiece() == NULL) {
+				legalMoves.insert(&Board::gameboxess[i][j]);
+			}
+			else if (Board::gameboxess[i][j].getPiece()->color != color) {
+				legalMoves.insert(&Board::gameboxess[i][j]);
+			}
+		}
+	}
+
+
+	return legalMoves;
 }
 
 

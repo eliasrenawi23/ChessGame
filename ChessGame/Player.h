@@ -10,6 +10,8 @@
 #include "Queen.h"
 #include "Rook.h"
 #include <vector>
+#include <set>
+
 
 class Player
 {
@@ -17,11 +19,11 @@ class Player
 private:
 	PlayerColor color;
 	std::vector<Piece*> Pieces;
-
+	static std::vector<Box*> ThreatMap;
 public:
 	Player(PlayerColor color );
 	std::vector<Piece*> getPieces();
-	std::vector<Box*> play(Piece* pieceToPlay);
+	std::set<Box*> play(Piece* pieceToPlay);
 	void init();
 	~Player();
 

@@ -11,7 +11,7 @@ private:
 
 public:
     Pawn(Box *loc, PlayerColor color);
-    std::vector<Box*> moveAndTake() override;
+    std::set<Box*> moveAndTake() override;
      //std::vector<Box*> movess();
      ~Pawn();
 };

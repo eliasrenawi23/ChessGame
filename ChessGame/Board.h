@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "PlayerColor.h"
 #include <vector>
+#include <set>
 
 
 class Board
@@ -19,8 +20,7 @@ private:
 	Player* whitePlayer;
 	Player* blackPlayer;
 	bool playerTurn; //false for black and true for white
-	std::vector<Box*> boxtoLight;
-
+	std::set<Box*> boxtoLight;
 
 public:
 	Board();

@@ -4,6 +4,7 @@
 #include "PlayerColor.h"
 #include <SDL_image.h>
 #include <iostream>
+#include <set>
 
 
 
@@ -19,9 +20,15 @@ public:
 	Piece();
 	Box* getLocation();
 	void setLocation(Box* loc);
-	virtual std::vector<Box*> moveAndTake() = 0;
+	virtual std::set<Box*> moveAndTake() = 0;
 	void renderPiece();
 	virtual ~Piece() ;
+protected:
+	std::set<Box*>colMovs(int x, int y, int direction);
+	std::set<Box*> rowMovs(int x, int y, int direction);
+	std::set<Box*> checkDiagonal(int x, int y, int direction, int Idirection);
+	bool ifInvokeCheckmate(int x, int y);
+
 };
 
 

@@ -18,31 +18,31 @@ Pawn::Pawn(Box* loc, PlayerColor color) :firstMove(true)
 	SDL_FreeSurface(surface);
 
 }
-std::vector<Box*> Pawn::moveAndTake()
+std::set<Box*>  Pawn::moveAndTake()
 {
 	std::cout << "Pawn clicked" << std::endl;
 	int diraction = (color == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
 	int x = (location->x) / Board::BoxWidthandHigth;
 	int y = (location->y) / Board::BoxWidthandHigth;
-	std::vector<Box*> legalMoves;
-	legalMoves.push_back(location); // put the pice in the first elemnt
+	std::set<Box*>  legalMoves;
+	legalMoves.insert(location); // put the pice in the first elemnt
 
 	//to do (must check for en passant) and pawn promotion
 	if (firstMove && (Board::gameboxess[x][y - 2 * diraction].getPiece() == NULL)) { //forword 2 boxes  
-		legalMoves.push_back(&Board::gameboxess[x][y - 2 * diraction]);
+		legalMoves.insert(&Board::gameboxess[x][y - 2 * diraction]);
 		firstMove = false;
 	}
 	if (y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x][y - diraction].getPiece() == NULL)) {
-		legalMoves.push_back(&Board::gameboxess[x][y - diraction]); // forword
+		legalMoves.insert(&Board::gameboxess[x][y - diraction]); // forword
 	}
 	if (x - 1 >= 0 && y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x - 1][y - diraction].getPiece() != NULL)) {
 		if ((&Board::gameboxess[x - 1][y - diraction])->getPiece()->color != color) {
-			legalMoves.push_back(&Board::gameboxess[x - 1][y - diraction]); //left corner
+			legalMoves.insert(&Board::gameboxess[x - 1][y - diraction]); //left corner
 		}
 	}
 	if (x + 1 < Board::rowBoxNmbersandCols && y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x + 1][y - diraction].getPiece() != NULL)) {
 		if ((&Board::gameboxess[x + 1][y - diraction])->getPiece()->color != color) {
-			legalMoves.push_back(&Board::gameboxess[x + 1][y - diraction]); //right corner
+			legalMoves.insert(&Board::gameboxess[x + 1][y - diraction]); //right corner
 		}
 	}
 

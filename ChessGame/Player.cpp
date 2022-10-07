@@ -15,7 +15,7 @@ std::vector<Piece*> Player::getPieces()
 	return this->Pieces;
 }
 
-std::vector<Box*> Player::play(Piece* pieceToPlay)
+std::set<Box*>  Player::play(Piece* pieceToPlay)
 {
 	//pieceToPlay->location = &Board::gameboxess[4][4];
 	return pieceToPlay->moveAndTake();

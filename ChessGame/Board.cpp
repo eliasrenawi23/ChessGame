@@ -11,8 +11,6 @@ void Board::init()
 	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
 	BoxWidthandHigth /= rowBoxNmbersandCols;
 
-	std::cout << BoxWidthandHigth << " " << BoxWidthandHigth << std::endl;
-
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
 		std::vector<Box> temp;
@@ -50,6 +48,7 @@ void Board::resize()
 
 
 }
+
 void Board::getLegalMovs(int cor_x, int cor_y)
 {
 	int box_x = cor_x / (Window::SQUARE_SIZE / 8);
@@ -67,13 +66,12 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 	if (playerTurn && (gameboxess[box_x][box_y].getPiece()->color == PlayerColor::WHITE)) {
 		//to do get the player move
 		boxtoLight = whitePlayer->play(gameboxess[box_x][box_y].getPiece());
-		highlightboxs(true);
 	}
 	else if (!playerTurn && (gameboxess[box_x][box_y].getPiece()->color == PlayerColor::BLACK)) {
 		//to do get the player move
 		boxtoLight = blackPlayer->play(gameboxess[box_x][box_y].getPiece());
-		highlightboxs(true);
 	}
+	highlightboxs(true);
 
 
 }
@@ -84,11 +82,17 @@ void  Board::play(int cor_x, int cor_y) {
 		std::cout << " out of range " << box_x << " " << box_y << std::endl;
 		return;
 	}
-	if (boxtoLight.empty() || boxtoLight[0]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[0]->y / (Window::SQUARE_SIZE / 8) == box_y) {
+	if (boxtoLight.empty()) {
 		highlightboxs(false);
 		boxtoLight.clear();
 		return;
 	}
+	/*if (boxtoLight.empty() || boxtoLight[0]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[0]->y / (Window::SQUARE_SIZE / 8) == box_y) {
+		highlightboxs(false);
+		boxtoLight.clear();
+		return;
+	}
+
 	for (int i = 1; i < boxtoLight.size(); i++) {
 
 		if (boxtoLight[i]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[i]->y / (Window::SQUARE_SIZE / 8) == box_y) {
@@ -102,6 +106,50 @@ void  Board::play(int cor_x, int cor_y) {
 			break;
 		}
 	}
+	*/
+	std::set<Box*>::iterator itr;
+
+	Box* b = gameboxess[box_x][cor_y];
+
+	auto pos= boxtoLight.find(b)
+	if (pos != boxtoLight.end()) {
+
+
+
+
+
+		highlightboxs(false);
+		boxtoLight.clear();
+		return;
+	}
+
+
+
+	for (itr = boxtoLight.begin(); itr != boxtoLight.end(); itr++)
+	{
+		if (boxtoLight.empty()||(*itr)->x / (Window::SQUARE_SIZE / 8) == box_x && (*itr)->y / (Window::SQUARE_SIZE / 8) == box_y) {
+			highlightboxs(false);
+			boxtoLight.clear();
+			return;
+		}
+		if ((*itr)->x / (Window::SQUARE_SIZE / 8) == box_x && (*itr)->y / (Window::SQUARE_SIZE / 8) == box_y) {
+			if ((*itr)->getPiece() != NULL) {
+				(*itr)->getPiece()->~Piece();
+			}
+			boxtoLight[0]->getPiece()->setLocation(boxtoLight[i]);
+			boxtoLight[i]->setPiece(boxtoLight[0]->getPiece());
+			boxtoLight[0]->setPiece(NULL);
+			playerTurn = !playerTurn; //change turns
+			break;
+		}
+
+
+
+		//std:: cout << *itr << std::endl;
+	}
+
+
+
 	highlightboxs(false);
 	boxtoLight.clear();
 
@@ -110,16 +158,15 @@ void  Board::play(int cor_x, int cor_y) {
 
 void Board::highlightboxs(bool onOrOff) {
 
+	std::set<Box*>::iterator itr;
 	if (onOrOff) {
-		for (int i = 0; i < boxtoLight.size(); i++) {
-
-			boxtoLight[i]->boxColor = { 64,191, 255, SDL_ALPHA_OPAQUE };
-
+		for (itr = boxtoLight.begin(); itr != boxtoLight.end(); itr++) {
+			(*itr)->boxColor = { 64,191, 255, SDL_ALPHA_OPAQUE };
 		}
 	}
 	else {
-		for (int i = 0; i < boxtoLight.size(); i++) {
-			boxtoLight[i]->boxColor = boxtoLight[i]->originalColor;
+		for (itr = boxtoLight.begin(); itr != boxtoLight.end(); itr++) {
+			(*itr)->boxColor = (*itr)->originalColor;
 		}
 	}
 
