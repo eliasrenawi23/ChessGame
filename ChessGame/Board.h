@@ -21,7 +21,7 @@ private:
 	Player* blackPlayer;
 	bool playerTurn; //false for black and true for white
 	std::set<Box*> boxtoLight;
-
+	Box* selectedBox;
 public:
 	Board();
 	void getLegalMovs(int cor_x, int cor_y);

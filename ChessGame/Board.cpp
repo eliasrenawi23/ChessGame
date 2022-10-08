@@ -3,7 +3,7 @@
 
 int Board::BoxWidthandHigth;
 std::vector<std::vector<Box >> Board::gameboxess;
-Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true)
+Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL)
 {
 }
 void Board::init()
@@ -58,18 +58,20 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		return;
 	}
 	std::cout << " box_x box_y MOUSE BUTTON Down : " << box_x << " " << box_y << std::endl;
-
-	if (gameboxess[box_x][box_y].getPiece() == NULL) { //this vox has no pice in it no action needed
+	selectedBox = &gameboxess[box_x][box_y]; //selected box that contain piece to play with
+	if (selectedBox->getPiece() == NULL) { //this vox has no pice in it no action needed
 		std::cout << " this vox has no pice in it no action needed " << std::endl;
 		return;
 	}
-	if (playerTurn && (gameboxess[box_x][box_y].getPiece()->color == PlayerColor::WHITE)) {
+	if (playerTurn && (selectedBox->getPiece()->color == PlayerColor::WHITE)) {
 		//to do get the player move
-		boxtoLight = whitePlayer->play(gameboxess[box_x][box_y].getPiece());
+		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap());
+		boxtoLight = whitePlayer->play(selectedBox->getPiece());
 	}
-	else if (!playerTurn && (gameboxess[box_x][box_y].getPiece()->color == PlayerColor::BLACK)) {
+	else if (!playerTurn && (selectedBox->getPiece()->color == PlayerColor::BLACK)) {
 		//to do get the player move
-		boxtoLight = blackPlayer->play(gameboxess[box_x][box_y].getPiece());
+		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap());
+		boxtoLight = blackPlayer->play(selectedBox->getPiece());
 	}
 	highlightboxs(true);
 
@@ -82,74 +84,27 @@ void  Board::play(int cor_x, int cor_y) {
 		std::cout << " out of range " << box_x << " " << box_y << std::endl;
 		return;
 	}
-	if (boxtoLight.empty()) {
+	//if player didnot change the piece location
+	if (boxtoLight.empty() || (selectedBox->x / (Window::SQUARE_SIZE / 8) == box_x && selectedBox->y / (Window::SQUARE_SIZE / 8) == box_y)) {
 		highlightboxs(false);
 		boxtoLight.clear();
 		return;
 	}
-	/*if (boxtoLight.empty() || boxtoLight[0]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[0]->y / (Window::SQUARE_SIZE / 8) == box_y) {
-		highlightboxs(false);
-		boxtoLight.clear();
-		return;
-	}
-
-	for (int i = 1; i < boxtoLight.size(); i++) {
-
-		if (boxtoLight[i]->x / (Window::SQUARE_SIZE / 8) == box_x && boxtoLight[i]->y / (Window::SQUARE_SIZE / 8) == box_y) {
-			if (boxtoLight[i]->getPiece() != NULL) {
-				boxtoLight[i]->getPiece()->~Piece();
-			}
-			boxtoLight[0]->getPiece()->setLocation(boxtoLight[i]);
-			boxtoLight[i]->setPiece(boxtoLight[0]->getPiece());
-			boxtoLight[0]->setPiece(NULL);
-			playerTurn = !playerTurn; //change turns
-			break;
-		}
-	}
-	*/
 	std::set<Box*>::iterator itr;
-
-	Box* b = gameboxess[box_x][cor_y];
-
-	auto pos= boxtoLight.find(b)
+	Box* b = &gameboxess[box_x][box_y]; // the box to play to 
+	auto pos = boxtoLight.find(b);
 	if (pos != boxtoLight.end()) {
-
-
-
-
-
-		highlightboxs(false);
-		boxtoLight.clear();
-		return;
-	}
-
-
-
-	for (itr = boxtoLight.begin(); itr != boxtoLight.end(); itr++)
-	{
-		if (boxtoLight.empty()||(*itr)->x / (Window::SQUARE_SIZE / 8) == box_x && (*itr)->y / (Window::SQUARE_SIZE / 8) == box_y) {
-			highlightboxs(false);
-			boxtoLight.clear();
-			return;
+		if ((*pos)->getPiece() != NULL) {
+			(*pos)->getPiece()->~Piece();
+			delete (*pos)->getPiece();
+			whitePlayer->updateVectorPieces((*pos)->getPiece());
+			blackPlayer->updateVectorPieces((*pos)->getPiece());
 		}
-		if ((*itr)->x / (Window::SQUARE_SIZE / 8) == box_x && (*itr)->y / (Window::SQUARE_SIZE / 8) == box_y) {
-			if ((*itr)->getPiece() != NULL) {
-				(*itr)->getPiece()->~Piece();
-			}
-			boxtoLight[0]->getPiece()->setLocation(boxtoLight[i]);
-			boxtoLight[i]->setPiece(boxtoLight[0]->getPiece());
-			boxtoLight[0]->setPiece(NULL);
-			playerTurn = !playerTurn; //change turns
-			break;
-		}
-
-
-
-		//std:: cout << *itr << std::endl;
+		selectedBox->getPiece()->setLocation((*pos));   ///chenge the location of the piece
+		(*pos)->setPiece(selectedBox->getPiece());
+		selectedBox->setPiece(NULL);
+		playerTurn = !playerTurn; //change turns		
 	}
-
-
-
 	highlightboxs(false);
 	boxtoLight.clear();
 
@@ -187,12 +142,16 @@ void Board::RenderPieces()
 	std::vector<Piece*> BlackPieces = blackPlayer->getPieces();
 	for (int i = 0; i < BlackPieces.size(); i++)
 	{
-		BlackPieces[i]->renderPiece();
+			BlackPieces[i]->renderPiece();
+		
 	}
 	std::vector<Piece*> WhitePieces = whitePlayer->getPieces();
 	for (int i = 0; i < WhitePieces.size(); i++)
 	{
-		WhitePieces[i]->renderPiece();
+		if (WhitePieces[i] != nullptr) {
+
+			WhitePieces[i]->renderPiece();
+		}
 	}
 
 

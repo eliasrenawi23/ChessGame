@@ -2,7 +2,7 @@
 #include "Window.h"
 
 
-Pawn::Pawn(Box* loc, PlayerColor color) :firstMove(true)
+Pawn::Pawn(Box* loc, PlayerColor color)
 {
 	location = loc;
 	this->color = color;
@@ -30,7 +30,6 @@ std::set<Box*>  Pawn::moveAndTake()
 	//to do (must check for en passant) and pawn promotion
 	if (firstMove && (Board::gameboxess[x][y - 2 * diraction].getPiece() == NULL)) { //forword 2 boxes  
 		legalMoves.insert(&Board::gameboxess[x][y - 2 * diraction]);
-		firstMove = false;
 	}
 	if (y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x][y - diraction].getPiece() == NULL)) {
 		legalMoves.insert(&Board::gameboxess[x][y - diraction]); // forword

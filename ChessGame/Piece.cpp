@@ -1,6 +1,6 @@
 #include "Piece.h"
 #include "Window.h"
-Piece::Piece() :location(NULL), texture(NULL)
+Piece::Piece() :location(NULL), texture(NULL), firstMove(true)
 {
 }
 
@@ -12,6 +12,7 @@ Box* Piece::getLocation()
 void Piece::setLocation(Box* loc)
 {
 	location = loc;
+	firstMove = false;
 }
 
 
@@ -35,6 +36,7 @@ void Piece::renderPiece()
 
 Piece::~Piece()
 {
+	location = NULL;
 	SDL_DestroyTexture(texture);
 }
 

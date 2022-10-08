@@ -19,11 +19,14 @@ class Player
 private:
 	PlayerColor color;
 	std::vector<Piece*> Pieces;
-	static std::vector<Box*> ThreatMap;
+	std::set<Box*> opponentThreatMap;
 public:
 	Player(PlayerColor color );
 	std::vector<Piece*> getPieces();
 	std::set<Box*> play(Piece* pieceToPlay);
+	std::set<Box*> ClacThreatMap();
+	void updateVectorPieces(Piece* p);
+	void setopponentThreatMap(std::set<Box*> opponentThreatMap);
 	void init();
 	~Player();
 

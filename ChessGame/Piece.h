@@ -16,6 +16,7 @@ public:
 	Box *location;
 	PlayerColor color;
 	SDL_Texture* texture;
+	bool firstMove;
 public:
 	Piece();
 	Box* getLocation();
