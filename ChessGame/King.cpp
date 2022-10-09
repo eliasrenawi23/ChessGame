@@ -29,6 +29,7 @@ std::set<Box*>  King::moveAndTake()
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
 
+	legalMoves.insert(location);
 
 
 	for (int i = x - 1; i < n && i < (x + 2); i++) {
@@ -54,7 +55,6 @@ std::set<Box*> King::PieceThreatMap()
 	int y = (location->y) / Board::BoxWidthandHigth;
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
-
 	for (int i = x - 1; i < n && i < (x + 2); i++) {
 		if (i < 0)continue;
 		for (int j = y - 1; j < n && j < (y + 2); j++) {

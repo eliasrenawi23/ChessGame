@@ -23,15 +23,15 @@ std::set<Box*>  Player::play(Piece* pieceToPlay)
 	int s = Board::BoxWidthandHigth;
 
 	if (dynamic_cast<King*>(pieceToPlay) != nullptr) {
-		std::set<Box*>::iterator itr2;
+	/*	std::set<Box*>::iterator itr2;
 		for (itr2 = legalmoves.begin(); itr2 != legalmoves.end(); itr2++) {
 			std::cout << "legalmoves (*itr2) " << (*itr2)->x / s << " " << (*itr2)->y / s << std::endl;
-		}
+		}*/
 
 		std::cout << "player.cpp king must remove locations " << std::endl;
 		std::set<Box*>::iterator itr;
 		for (itr = opponentThreatMap.begin(); itr != opponentThreatMap.end(); itr++) {
-			std::cout << "opponentThreatMap (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
+			//std::cout << "Player::play (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
 
 			legalmoves.erase((*itr));
 		}
@@ -52,10 +52,10 @@ std::set<Box*> Player::ClacThreatMap()
 			ThreatMap.insert(PieceIThreatMap.begin(), PieceIThreatMap.end());
 		}
 	}
-	std::set<Box*>::iterator itr;
-	for (itr = opponentThreatMap.begin(); itr != opponentThreatMap.end(); itr++) {
-		std::cout << "opponentThreatMap (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
-	}
+	//std::set<Box*>::iterator itr;
+	//for (itr = ThreatMap.begin(); itr != ThreatMap.end(); itr++) {
+	//	std::cout << "Player::ClacThreatMap() (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
+	//}
 
 
 	return ThreatMap;
