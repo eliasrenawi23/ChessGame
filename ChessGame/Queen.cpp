@@ -27,7 +27,6 @@ std::set<Box*>  Queen::moveAndTake()
 	int x = (location->x) / Board::BoxWidthandHigth;
 	int y = (location->y) / Board::BoxWidthandHigth;
 	std::set<Box*>  legalMoves;
-	legalMoves.insert(location);
 
 	std::set<Box*>  Diag1part1;
 	std::set<Box*>  Diag1part2;
@@ -67,6 +66,51 @@ std::set<Box*>  Queen::moveAndTake()
 
 	return legalMoves;
 
+}
+
+std::set<Box*> Queen::PieceThreatMap()
+{
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	std::set<Box*>  legalMoves;
+
+	std::set<Box*>  Diag1part1;
+	std::set<Box*>  Diag1part2;
+
+	Diag1part1 = DiagonalThreatMap(x, y, 1, 1);
+	Diag1part2 = DiagonalThreatMap(x, y, -1, 1);
+	Diag1part1.insert(Diag1part2.begin(), Diag1part2.end());
+
+	std::set<Box*>  Diag2part1;
+	std::set<Box*>  Diag2part2;
+
+	Diag2part1 = DiagonalThreatMap(x, y, 1, -1);
+	Diag2part2 = DiagonalThreatMap(x, y, -1, -1);
+	Diag2part1.insert(Diag2part2.begin(), Diag2part2.end());
+
+	legalMoves.insert(Diag1part1.begin(), Diag1part1.end());
+	legalMoves.insert(Diag2part1.begin(), Diag2part1.end());
+
+	std::set<Box*>  rowPart1;
+	std::set<Box*>  rowPart2;
+
+	rowPart1 = rowThreatMap(x, y, 1);
+	rowPart2 = rowThreatMap(x, y, -1);
+	rowPart1.insert(rowPart2.begin(), rowPart2.end());
+
+	std::set<Box*>  colPart1;
+	std::set<Box*>  colPart2;
+
+	colPart1 = colThreatMap(x, y, 1);
+	colPart2 = colThreatMap(x, y, -1);
+	colPart1.insert(colPart2.begin(), colPart2.end());
+
+	legalMoves.insert(rowPart1.begin(), rowPart1.end());
+	legalMoves.insert(colPart1.begin(), colPart1.end());
+
+
+
+	return legalMoves;
 }
 
 Queen::~Queen()

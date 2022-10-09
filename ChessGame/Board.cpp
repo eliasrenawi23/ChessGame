@@ -64,6 +64,8 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		return;
 	}
 	if (playerTurn && (selectedBox->getPiece()->color == PlayerColor::WHITE)) {
+
+
 		//to do get the player move
 		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap());
 		boxtoLight = whitePlayer->play(selectedBox->getPiece());

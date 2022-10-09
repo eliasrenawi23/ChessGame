@@ -28,7 +28,7 @@ std::set<Box*>  King::moveAndTake()
 	int y = (location->y) / Board::BoxWidthandHigth;
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
-	legalMoves.insert(location);
+
 
 
 	for (int i = x - 1; i < n && i < (x + 2); i++) {
@@ -41,6 +41,25 @@ std::set<Box*>  King::moveAndTake()
 			else if (Board::gameboxess[i][j].getPiece()->color != color) {
 				legalMoves.insert(&Board::gameboxess[i][j]);
 			}
+		}
+	}
+
+
+	return legalMoves;
+}
+
+std::set<Box*> King::PieceThreatMap()
+{
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	int n = Board::rowBoxNmbersandCols;
+	std::set<Box*>  legalMoves;
+
+	for (int i = x - 1; i < n && i < (x + 2); i++) {
+		if (i < 0)continue;
+		for (int j = y - 1; j < n && j < (y + 2); j++) {
+			if (j < 0)continue;
+			legalMoves.insert(&Board::gameboxess[i][j]);
 		}
 	}
 

@@ -26,7 +26,6 @@ std::set<Box*>  Rook::moveAndTake()
 	int x = (location->x) / Board::BoxWidthandHigth;
 	int y = (location->y) / Board::BoxWidthandHigth;
 	std::set<Box*>  legalMoves;
-	legalMoves.insert(location);
 	std::set<Box*>  rowPart1;
 	std::set<Box*>  rowPart2;
 
@@ -47,6 +46,32 @@ std::set<Box*>  Rook::moveAndTake()
 	legalMoves.insert( colPart1.begin(), colPart1.end());
 	return legalMoves;
 
+}
+
+std::set<Box*> Rook::PieceThreatMap()
+{
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	std::set<Box*>  legalMoves;
+	std::set<Box*>  rowPart1;
+	std::set<Box*>  rowPart2;
+
+	rowPart1 = rowThreatMap(x, y, 1);
+	rowPart2 = rowThreatMap(x, y, -1);
+
+
+	rowPart1.insert(rowPart2.begin(), rowPart2.end());
+
+	std::set<Box*>  colPart1;
+	std::set<Box*>  colPart2;
+
+	colPart1 = colThreatMap(x, y, 1);
+	colPart2 = colThreatMap(x, y, -1);
+	colPart1.insert(colPart2.begin(), colPart2.end());
+
+	legalMoves.insert(rowPart1.begin(), rowPart1.end());
+	legalMoves.insert(colPart1.begin(), colPart1.end());
+	return legalMoves;
 }
 
 

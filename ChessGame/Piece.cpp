@@ -60,24 +60,59 @@ std::set<Box*> Piece::colMovs(int x, int y, int direction)
 	return ClegalMoves;
 }
 
-std::set<Box*> Piece::rowMovs(int x, int y, int direction)
+std::set<Box*> Piece::colThreatMap(int x, int y, int direction)
 {
 	std::set<Box*> ClegalMoves;
+	int n = Board::rowBoxNmbersandCols;
+	for (int i = y; i < n && i >= 0; i = i + direction)
+	{
+		if (Board::gameboxess[x][i].getPiece() == NULL) {
+			ClegalMoves.insert(&Board::gameboxess[x][i]);
+		}
+		else  {
+			ClegalMoves.insert(&Board::gameboxess[x][i]);
+			break;
+		}
+		
+	}
+	return ClegalMoves;
+}
+
+std::set<Box*> Piece::rowMovs(int x, int y, int direction)
+{
+	std::set<Box*> RlegalMoves;
 	int n = Board::rowBoxNmbersandCols;
 	for (int i = x; i < n && i >= 0; i = i + direction)
 	{
 		if (Board::gameboxess[i][y].getPiece() == NULL) {
-			ClegalMoves.insert(&Board::gameboxess[i][y]);
+			RlegalMoves.insert(&Board::gameboxess[i][y]);
 		}
 		else if (Board::gameboxess[i][y].getPiece()->color != color) {
-			ClegalMoves.insert(&Board::gameboxess[i][y]);
+			RlegalMoves.insert(&Board::gameboxess[i][y]);
 			break;
 		}
 		else if (Board::gameboxess[i][y].getPiece()->color == color && (Board::gameboxess[i][y].getPiece() != this)) {
 			break;
 		}
 	}
-	return ClegalMoves;
+	return RlegalMoves;
+}
+
+std::set<Box*> Piece::rowThreatMap(int x, int y, int direction)
+{
+	std::set<Box*> RlegalMoves;
+	int n = Board::rowBoxNmbersandCols;
+	for (int i = x; i < n && i >= 0; i = i + direction)
+	{
+		if (Board::gameboxess[i][y].getPiece() == NULL) {
+			RlegalMoves.insert(&Board::gameboxess[i][y]);
+		}
+		else{
+			RlegalMoves.insert(&Board::gameboxess[i][y]);
+			break;
+		}
+	}
+	return RlegalMoves;
 }
 
 std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection)
@@ -95,6 +130,24 @@ std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection)
 			break;
 		}
 		else if (Board::gameboxess[i][j].getPiece()->color == color && (Board::gameboxess[i][j].getPiece() != this)) {
+			break;
+		}
+	}
+	return DlegalMoves;
+}
+
+std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirection)
+{
+	int n = Board::rowBoxNmbersandCols;
+	std::set<Box*> DlegalMoves;
+
+	for (int i = x, j = y; i < n && j < n && i >= 0 && j >= 0; i = i + direction * Idirection, j = j + direction)
+	{
+		if (Board::gameboxess[i][j].getPiece() == NULL) {
+			DlegalMoves.insert(&Board::gameboxess[i][j]);
+		}
+		else {
+			DlegalMoves.insert(&Board::gameboxess[i][j]);
 			break;
 		}
 	}
