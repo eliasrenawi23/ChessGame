@@ -1,5 +1,7 @@
 #include "Piece.h"
 #include "Window.h"
+#include <algorithm> 
+
 Piece::Piece() :location(NULL), texture(NULL), firstMove(true)
 {
 }
@@ -191,50 +193,70 @@ std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirect
 	return DlegalMoves;
 }
 
-std::set<Box*> Piece::checkIfPinned(int x, int y)
+std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 {
-	std::set<Box*> ClegalMoves;
-	/*int direction = 1;
-	int n = Board::rowBoxNmbersandCols;
-	bool kingInPath = false;
-	bool threatInPath = false;
+	std::set<Box*>  Diag1part1;
+	std::set<Box*>  Diag1part2;
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
+	std::set<Box*> endres;
+	Diag1part1 = checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath);
+	Diag1part2 = checkDiagonal(x, y, -1, 1, &thretInPath, &kingInPath);
+	Diag1part1.insert(Diag1part2.begin(), Diag1part2.end());
+	if (thretInPath && kingInPath) {
+		std::set_intersection(legalMoves.begin(), legalMoves.end(), Diag1part1.begin(), Diag1part1.end(),
+			std::inserter(endres, endres.begin()));
+		return endres;
+	}
+	thretInPath = false;
+	kingInPath = false;
+	endres.clear();
 
-	for (int i = y; i < n && i >= 0; i = i + direction)
-	{
-		Piece* p = Board::gameboxess[x][i].getPiece();
+	std::set<Box*>  Diag2part1;
+	std::set<Box*>  Diag2part2;
 
-		if (p != NULL) {
-			if (King* k = dynamic_cast<King*>(p)) {
-				if (k->color == color) { // our king in our path
-					kingInPath = true;
-					direction = direction * (-1);
-					i = y;
-				}
-			}
-			if (Queen* t = dynamic_cast<Queen*>(p)) {
-				if (t->color != color) { //  opponent  Queen in our path
-					threatInPath = true;
-					ClegalMoves.insert(&Board::gameboxess[x][i]);
-					break;
-				}
-			}
-			else if (Rook* t = dynamic_cast<Rook*>(p)) {
-				if (t->color != color) { // opponent  Rook in our path
-					threatInPath = true;
-					ClegalMoves.insert(&Board::gameboxess[x][i]);
-					break;
-				}
-			}
-		}
-		else if (p != this&&p!=NULL) {
-			ClegalMoves.insert(&Board::gameboxess[x][i]);
-			break;
+	Diag2part1 = checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath);
+	Diag2part2 = checkDiagonal(x, y, -1, -1, &thretInPath, &kingInPath);
+	Diag2part1.insert(Diag2part2.begin(), Diag2part2.end());
 
-		}
-		else if (p==NULL) {
-			ClegalMoves.insert(&Board::gameboxess[x][i]);
-		}
+	if (thretInPath && kingInPath) {
+		std::set_intersection(legalMoves.begin(), legalMoves.end(), Diag2part1.begin(), Diag2part1.end(),
+			std::inserter(endres, endres.begin()));
+		return endres;
 
-	}*/
-	return ClegalMoves;
+	}
+	thretInPath = false;
+	kingInPath = false;
+	endres.clear();
+
+
+	std::set<Box*>  rowPart1;
+	std::set<Box*>  rowPart2;
+
+	rowPart1 = rowMovs(x, y, 1, &thretInPath, &kingInPath);
+	rowPart2 = rowMovs(x, y, -1, &thretInPath, &kingInPath); //if thret in the row then cant move
+	rowPart1.insert(rowPart2.begin(), rowPart2.end());
+
+	if (thretInPath && kingInPath) {
+		return endres;//return empty set
+	}
+	thretInPath = false;
+	kingInPath = false;
+	endres.clear();
+
+
+	std::set<Box*>  colPart1;
+	std::set<Box*>  colPart2;
+
+	colPart1 = colMovs(x, y, 1, &thretInPath, &kingInPath);
+	colPart2 = colMovs(x, y, -1, &thretInPath, &kingInPath);
+	colPart1.insert(colPart2.begin(), colPart2.end());
+	if (thretInPath && kingInPath) {
+		std::set_intersection(legalMoves.begin(), legalMoves.end(), colPart1.begin(), colPart1.end(),
+			std::inserter(endres, endres.begin()));
+		return endres;
+	}
+	return legalMoves;
 }
+

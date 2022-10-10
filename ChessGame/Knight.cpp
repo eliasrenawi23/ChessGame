@@ -70,6 +70,9 @@ std::set<Box*>  Knight::moveAndTake()
 		legalMoves.insert(&Board::gameboxess[x + 2][y + 1]); // L backword
 	}
 
+	legalMoves = checkpinned(legalMoves);
+
+
 	return legalMoves;
 
 }

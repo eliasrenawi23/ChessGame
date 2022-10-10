@@ -10,7 +10,5 @@ public:
     std::set<Box*> moveAndTake() override;
     std::set<Box*>PieceThreatMap()override;
     ~Pawn();
-private:
-    void checkpinned(std::set<Box*> legalMoves);
 };
 

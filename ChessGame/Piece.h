@@ -36,7 +36,7 @@ protected:
 	std::set<Box*> DiagonalThreatMap(int x, int y, int direction, int Idirection);
 
 
-	std::set<Box*>checkIfPinned(int x, int y);
+	std::set<Box*> checkpinned(std::set<Box*> legalMoves);
 
 
 	bool ifInvokeCheckmate(int x, int y);
