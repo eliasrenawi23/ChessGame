@@ -23,12 +23,14 @@ private:
 public:
 	Player(PlayerColor color );
 	std::vector<Piece*> getPieces();
-	std::set<Box*> play(Piece* pieceToPlay);
-	std::set<Box*> ClacThreatMap();
+	std::set<Box*> play(Piece* pieceToPlay, bool* checkmate);
+	std::set<Box*> ClacThreatMap(bool* checkmate);
 	void updateVectorPieces(Piece* p);
 	void setopponentThreatMap(std::set<Box*> opponentThreatMap);
 	void init();
 	~Player();
+private :
+	King* getKing();
 
 };
 

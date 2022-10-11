@@ -42,7 +42,7 @@ Piece::~Piece()
 	SDL_DestroyTexture(texture);
 }
 
-std::set<Box*> Piece::colMovs(int x, int y, int direction,bool * thretInPath,bool * kingInPath)
+std::set<Box*> Piece::colMovs(int x, int y, int direction, bool* thretInPath, bool* kingInPath)
 {
 	std::set<Box*> ClegalMoves;
 	//bool thretInPath = false, kingInPath = false;
@@ -58,7 +58,7 @@ std::set<Box*> Piece::colMovs(int x, int y, int direction,bool * thretInPath,boo
 
 			if (Queen* t = dynamic_cast<Queen*>(p)) {//  opponent  Queen in our path
 				*thretInPath = true;
-				
+
 			}
 			if (Rook* t = dynamic_cast<Rook*>(p)) {//  opponent  Rook in our path
 				*thretInPath = true;
@@ -76,16 +76,24 @@ std::set<Box*> Piece::colMovs(int x, int y, int direction,bool * thretInPath,boo
 	return ClegalMoves;
 }
 
-std::set<Box*> Piece::colThreatMap(int x, int y, int direction)
+std::set<Box*> Piece::colThreatMap(int x, int y, int direction, bool* checkmate)
 {
 	std::set<Box*> ClegalMoves;
 	int n = Board::rowBoxNmbersandCols;
 	for (int i = y; i < n && i >= 0; i = i + direction)
 	{
-		if (Board::gameboxess[x][i].getPiece() == NULL || dynamic_cast<King*>(Board::gameboxess[x][i].getPiece()) != nullptr) {
+		Piece* p = Board::gameboxess[x][i].getPiece();
+		if (p == NULL) {
 			ClegalMoves.insert(&Board::gameboxess[x][i]);
 		}
-		else if (Board::gameboxess[x][i].getPiece() != this) {
+		else if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
+			*checkmate = true;
+			ClegalMoves.insert(&Board::gameboxess[x][i]);
+		}
+		else if (p != this) {
+			if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
+				*checkmate = true;
+			}
 			ClegalMoves.insert(&Board::gameboxess[x][i]);
 			break;
 		}
@@ -126,16 +134,22 @@ std::set<Box*> Piece::rowMovs(int x, int y, int direction, bool* thretInPath, bo
 	return RlegalMoves;
 }
 
-std::set<Box*> Piece::rowThreatMap(int x, int y, int direction)
+std::set<Box*> Piece::rowThreatMap(int x, int y, int direction, bool* checkmate)
 {
 	std::set<Box*> RlegalMoves;
 	int n = Board::rowBoxNmbersandCols;
 	for (int i = x; i < n && i >= 0; i = i + direction)
 	{
-		if (Board::gameboxess[i][y].getPiece() == NULL || dynamic_cast<King*>(Board::gameboxess[i][y].getPiece()) != nullptr) {
+		Piece* p = Board::gameboxess[i][y].getPiece();
+
+		if (p == NULL) {
 			RlegalMoves.insert(&Board::gameboxess[i][y]);
 		}
-		else if (Board::gameboxess[i][y].getPiece() != this) {
+		else if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
+			*checkmate = true;
+			RlegalMoves.insert(&Board::gameboxess[i][y]);
+		}
+		else if (p != this) {
 			RlegalMoves.insert(&Board::gameboxess[i][y]);
 			break;
 		}
@@ -175,17 +189,23 @@ std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection,
 	return DlegalMoves;
 }
 
-std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirection)
+std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirection, bool* checkmate)
 {
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*> DlegalMoves;
 
 	for (int i = x, j = y; i < n && j < n && i >= 0 && j >= 0; i = i + direction * Idirection, j = j + direction)
 	{
-		if (Board::gameboxess[i][j].getPiece() == NULL || dynamic_cast<King*>(Board::gameboxess[i][j].getPiece()) != nullptr) {
+		Piece* p = Board::gameboxess[i][j].getPiece();
+
+		if (p == NULL) {
 			DlegalMoves.insert(&Board::gameboxess[i][j]);
 		}
-		else if (Board::gameboxess[i][j].getPiece() != this) {
+		else if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
+			*checkmate = true;
+			DlegalMoves.insert(&Board::gameboxess[i][j]);
+		}
+		else if (p != this) {
 			DlegalMoves.insert(&Board::gameboxess[i][j]);
 			break;
 		}

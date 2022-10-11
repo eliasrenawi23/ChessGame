@@ -52,7 +52,7 @@ std::set<Box*>  Pawn::moveAndTake()
 
 
 
-std::set<Box*> Pawn::PieceThreatMap()
+std::set<Box*> Pawn::PieceThreatMap(bool* checkmateh)
 {
 	int diraction = (color == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
 	int x = (location->x) / Board::BoxWidthandHigth;

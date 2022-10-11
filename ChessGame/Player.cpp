@@ -2,6 +2,8 @@
 #include "Box.h"
 #include "Board.h"
 #include <iostream>
+#include <algorithm> 
+
 
 
 
@@ -15,7 +17,7 @@ std::vector<Piece*> Player::getPieces()
 	return this->Pieces;
 }
 
-std::set<Box*>  Player::play(Piece* pieceToPlay)
+std::set<Box*>  Player::play(Piece* pieceToPlay, bool* checkmate)
 {
 
 	std::set<Box*> legalmoves = pieceToPlay->moveAndTake();
@@ -32,23 +34,35 @@ std::set<Box*>  Player::play(Piece* pieceToPlay)
 		std::set<Box*>::iterator itr;
 		for (itr = opponentThreatMap.begin(); itr != opponentThreatMap.end(); itr++) {
 			//std::cout << "Player::play (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
-
 			legalmoves.erase((*itr));
 		}
-
-
 	}
+
+	else if ((*checkmate)) {
+		//check if checkmate and erace the other moves form the king // and finale put check mate to false
+		King* k = getKing();
+		if (k != NULL) {
+			std::set<Box*>kingcoverPath = k->getCoverPath();
+			std::set<Box*>endres;
+			//need the intersection between two sets
+			std::set_intersection(legalmoves.begin(), legalmoves.end(), kingcoverPath.begin(), kingcoverPath.end(),
+				std::inserter(endres, endres.begin()));
+			return endres;
+		}
+	}
+
+
 	return legalmoves;
 }
 
-std::set<Box*> Player::ClacThreatMap()
+std::set<Box*> Player::ClacThreatMap(bool* checkmate)
 {
 	std::set<Box*> ThreatMap;
 	int s = Board::BoxWidthandHigth;
 
 	for (int i = 0; i < Pieces.size(); i++) {
 		if (Pieces[i] != nullptr) {
-			std::set<Box*> PieceIThreatMap = Pieces[i]->PieceThreatMap();
+			std::set<Box*> PieceIThreatMap = Pieces[i]->PieceThreatMap(checkmate);
 			ThreatMap.insert(PieceIThreatMap.begin(), PieceIThreatMap.end());
 		}
 	}
@@ -119,6 +133,17 @@ Player::~Player()
 		delete p;
 	}
 	Pieces.clear();
+}
+
+King* Player::getKing()
+{
+
+	for (int i = 0; i < Pieces.size(); i++) {
+		if (King *k=dynamic_cast<King*>(Pieces[i])) {
+			return k;
+		}
+	}
+	return nullptr;
 }
 
 

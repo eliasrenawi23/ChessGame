@@ -53,7 +53,7 @@ std::set<Box*>  Rook::moveAndTake()
 
 }
 
-std::set<Box*> Rook::PieceThreatMap()
+std::set<Box*> Rook::PieceThreatMap(bool* checkmate)
 {
 	int x = (location->x) / Board::BoxWidthandHigth;
 	int y = (location->y) / Board::BoxWidthandHigth;
@@ -61,8 +61,8 @@ std::set<Box*> Rook::PieceThreatMap()
 	std::set<Box*>  rowPart1;
 	std::set<Box*>  rowPart2;
 
-	rowPart1 = rowThreatMap(x, y, 1);
-	rowPart2 = rowThreatMap(x, y, -1);
+	rowPart1 = rowThreatMap(x, y, 1, checkmate);
+	rowPart2 = rowThreatMap(x, y, -1, checkmate);
 
 	rowPart1.insert(rowPart2.begin(), rowPart2.end());
 	// if pinned return rowPart1
@@ -70,8 +70,8 @@ std::set<Box*> Rook::PieceThreatMap()
 	std::set<Box*>  colPart1;
 	std::set<Box*>  colPart2;
 
-	colPart1 = colThreatMap(x, y, 1);
-	colPart2 = colThreatMap(x, y, -1);
+	colPart1 = colThreatMap(x, y, 1, checkmate);
+	colPart2 = colThreatMap(x, y, -1, checkmate);
 	colPart1.insert(colPart2.begin(), colPart2.end());
 
 	// if pinned return colPart1

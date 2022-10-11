@@ -49,7 +49,7 @@ std::set<Box*>  King::moveAndTake()
 	return legalMoves;
 }
 
-std::set<Box*> King::PieceThreatMap()
+std::set<Box*> King::PieceThreatMap(bool* checkmate)
 {
 	int x = (location->x) / Board::BoxWidthandHigth;
 	int y = (location->y) / Board::BoxWidthandHigth;
@@ -65,6 +65,61 @@ std::set<Box*> King::PieceThreatMap()
 
 
 	return legalMoves;
+}
+
+std::set<Box*> King::getCoverPath()
+{
+	std::cout << "King::getCoverPath" << std::endl;
+	int x = (location->x) / Board::BoxWidthandHigth;
+	int y = (location->y) / Board::BoxWidthandHigth;
+	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
+	std::set<Box*>  CoverPath;
+
+	std::set<Box*>  Diag1part1;
+	std::set<Box*>  Diag1part2;
+
+	Diag1part1 = checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath);
+	if (thretInPath)return Diag1part1;
+	thretInPath = false;
+	Diag1part2 = checkDiagonal(x, y, -1, 1, &thretInPath, &kingInPath);
+	if (thretInPath)return Diag1part2;
+	thretInPath = false;
+
+
+	std::set<Box*>  Diag2part1;
+	std::set<Box*>  Diag2part2;
+
+	Diag2part1 = checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath);
+	if (thretInPath)return Diag2part1;
+	thretInPath = false;
+	Diag2part2 = checkDiagonal(x, y, -1, -1, &thretInPath, &kingInPath);
+	if (thretInPath)return Diag2part2;
+	thretInPath = false;
+
+	std::set<Box*>  rowPart1;
+	std::set<Box*>  rowPart2;
+
+	rowPart1 = rowMovs(x, y, 1, &thretInPath, &kingInPath);
+	if (thretInPath)return rowPart1;
+	thretInPath = false;
+
+	rowPart2 = rowMovs(x, y, -1, &thretInPath, &kingInPath);
+	if (thretInPath)return rowPart2;
+	thretInPath = false;
+
+
+	std::set<Box*>  colPart1;
+	std::set<Box*>  colPart2;
+
+	colPart1 = colMovs(x, y, 1, &thretInPath, &kingInPath);
+	if (thretInPath)return colPart1;
+	thretInPath = false;
+	colPart2 = colMovs(x, y, -1, &thretInPath, &kingInPath);
+
+	if (thretInPath)return colPart2;
+	thretInPath = false;
+
+	return CoverPath;
 }
 
 

@@ -77,7 +77,7 @@ std::set<Box*>  Knight::moveAndTake()
 
 }
 
-std::set<Box*> Knight::PieceThreatMap()
+std::set<Box*> Knight::PieceThreatMap(bool* checkmate)
 {
 	int x = (location->x) / Board::BoxWidthandHigth;
 	int y = (location->y) / Board::BoxWidthandHigth;

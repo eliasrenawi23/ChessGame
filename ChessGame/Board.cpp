@@ -3,7 +3,7 @@
 
 int Board::BoxWidthandHigth;
 std::vector<std::vector<Box >> Board::gameboxess;
-Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL)
+Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL), checkmate(false)
 {
 }
 void Board::init()
@@ -67,14 +67,18 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 
 
 		//to do get the player move
-		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap());
-		boxtoLight = whitePlayer->play(selectedBox->getPiece());
+		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
+		//check if king is in check mate
+
+
+		boxtoLight = whitePlayer->play(selectedBox->getPiece(), &checkmate);
 	}
 	else if (!playerTurn && (selectedBox->getPiece()->color == PlayerColor::BLACK)) {
 		//to do get the player move
-		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap());
-		boxtoLight = blackPlayer->play(selectedBox->getPiece());
+		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
+		boxtoLight = blackPlayer->play(selectedBox->getPiece(), &checkmate);
 	}
+
 	highlightboxs(true);
 
 
@@ -107,6 +111,7 @@ void  Board::play(int cor_x, int cor_y) {
 		selectedBox->setPiece(NULL);
 		playerTurn = !playerTurn; //change turns		
 	}
+	checkmate = false;
 	highlightboxs(false);
 	boxtoLight.clear();
 
