@@ -21,14 +21,12 @@ std::set<Box*>  Player::play(Piece* pieceToPlay, bool* checkmate)
 {
 
 	std::set<Box*> legalmoves = pieceToPlay->moveAndTake();
+	bool gameover = false;
 
 	int s = Board::BoxWidthandHigth;
 
 	if (dynamic_cast<King*>(pieceToPlay) != nullptr) {
-	/*	std::set<Box*>::iterator itr2;
-		for (itr2 = legalmoves.begin(); itr2 != legalmoves.end(); itr2++) {
-			std::cout << "legalmoves (*itr2) " << (*itr2)->x / s << " " << (*itr2)->y / s << std::endl;
-		}*/
+
 
 		std::cout << "player.cpp king must remove locations " << std::endl;
 		std::set<Box*>::iterator itr;
@@ -44,10 +42,12 @@ std::set<Box*>  Player::play(Piece* pieceToPlay, bool* checkmate)
 		if (k != NULL) {
 			std::set<Box*>kingcoverPath = k->getCoverPath();
 			std::set<Box*>endres;
+			std::set<Box*>endgame;
+
 			//need the intersection between two sets
 			std::set_intersection(legalmoves.begin(), legalmoves.end(), kingcoverPath.begin(), kingcoverPath.end(),
 				std::inserter(endres, endres.begin()));
-			return endres;
+			return endres; //the piece we clicked can protect the king 
 		}
 	}
 
@@ -66,11 +66,6 @@ std::set<Box*> Player::ClacThreatMap(bool* checkmate)
 			ThreatMap.insert(PieceIThreatMap.begin(), PieceIThreatMap.end());
 		}
 	}
-	//std::set<Box*>::iterator itr;
-	//for (itr = ThreatMap.begin(); itr != ThreatMap.end(); itr++) {
-	//	std::cout << "Player::ClacThreatMap() (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
-	//}
-
 
 	return ThreatMap;
 }
@@ -139,7 +134,7 @@ King* Player::getKing()
 {
 
 	for (int i = 0; i < Pieces.size(); i++) {
-		if (King *k=dynamic_cast<King*>(Pieces[i])) {
+		if (King* k = dynamic_cast<King*>(Pieces[i])) {
 			return k;
 		}
 	}

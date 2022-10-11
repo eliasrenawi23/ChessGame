@@ -78,6 +78,7 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
 		boxtoLight = blackPlayer->play(selectedBox->getPiece(), &checkmate);
 	}
+	checkresult();
 
 	highlightboxs(true);
 
@@ -179,6 +180,31 @@ Board::~Board() {
 
 	delete whitePlayer;
 	delete blackPlayer;
+}
+
+void Board::checkresult()
+{
+	bool stlemnt = false;
+	bool gameover = false;
+	PlayerColor winner = PlayerColor::BLACK;
+	if (boxtoLight.size() == 1) {
+		if((*boxtoLight.begin()) == selectedBox);
+		//the game is stelment 
+		stlemnt = true;
+	}
+	else if (boxtoLight.empty() && checkmate ) {
+		if (playerTurn) {
+			//black win 
+			winner = PlayerColor::BLACK;;
+		}
+		else {
+			//white win
+			winner = PlayerColor::WHITE;;
+		}
+		gameover = true;
+	}
+
+	
 }
 
 

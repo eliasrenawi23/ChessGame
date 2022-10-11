@@ -173,7 +173,7 @@ std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection,
 			if (Queen* t = dynamic_cast<Queen*>(p)) {//  opponent  Queen in our path
 				*thretInPath = true;
 			}
-			if (Rook* t = dynamic_cast<Rook*>(p)) {//  opponent  Rook in our path
+			if (Bishop* t = dynamic_cast<Bishop*>(p)) {//  opponent  Rook in our path
 				*thretInPath = true;
 			}
 			DlegalMoves.insert(&Board::gameboxess[i][j]);
