@@ -17,7 +17,7 @@ std::vector<Piece*> Player::getPieces()
 	return this->Pieces;
 }
 
-std::set<Box*>  Player::play(Piece* pieceToPlay, bool* checkmate)
+std::set<Box*>  Player::play(Piece * const pieceToPlay, bool* checkmate)
 {
 
 	std::set<Box*> legalmoves = pieceToPlay->moveAndTake();
@@ -40,7 +40,6 @@ std::set<Box*>  Player::play(Piece* pieceToPlay, bool* checkmate)
 			std::set<Box*>kingcoverPath = k->getCoverPath();
 			std::set<Box*>endres;
 			std::set<Box*>endgame;
-
 			//need the intersection between two sets
 			std::set_intersection(legalmoves.begin(), legalmoves.end(), kingcoverPath.begin(), kingcoverPath.end(),
 				std::inserter(endres, endres.begin()));
@@ -63,6 +62,8 @@ std::set<Box*> Player::ClacThreatMap(bool* checkmate)
 			ThreatMap.insert(PieceIThreatMap.begin(), PieceIThreatMap.end());
 		}
 	}
+
+
 	return ThreatMap;
 }
 

@@ -36,6 +36,7 @@ public:
 	~Board();
 private:
 	void checkresult();
+	void highlightKing(bool checkmate,Player* player);
 
 };
 

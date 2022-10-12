@@ -25,22 +25,23 @@ std::set<Box*>  Pawn::moveAndTake()
 {
 	std::cout << "Pawn clicked" << std::endl;
 	int diraction = (color == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
-	
+	int n = Board::rowBoxNmbersandCols;
+
 	std::set<Box*>  legalMoves;
 
 	//to do (must check for en passant) and pawn promotion
 	if (firstMove && (Board::gameboxess[x][y - 2 * diraction].getPiece() == NULL)) { //forword 2 boxes  
 		legalMoves.insert(&Board::gameboxess[x][y - 2 * diraction]);
 	}
-	if (y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x][y - diraction].getPiece() == NULL)) {
+	if (y - diraction >= 0 && y - diraction < n && (Board::gameboxess[x][y - diraction].getPiece() == NULL)) {
 		legalMoves.insert(&Board::gameboxess[x][y - diraction]); // forword
 	}
-	if (x - 1 >= 0 && y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x - 1][y - diraction].getPiece() != NULL)) {
+	if (x - 1 >= 0 && y - diraction >= 0 && y - diraction < n && (Board::gameboxess[x - 1][y - diraction].getPiece() != NULL)) {
 		if ((&Board::gameboxess[x - 1][y - diraction])->getPiece()->getColor() != color) {
 			legalMoves.insert(&Board::gameboxess[x - 1][y - diraction]); //left corner
 		}
 	}
-	if (x + 1 < Board::rowBoxNmbersandCols && y - diraction >= 0 && y - diraction < Board::rowBoxNmbersandCols && (Board::gameboxess[x + 1][y - diraction].getPiece() != NULL)) {
+	if (x + 1 <n && y - diraction >= 0 && y - diraction < n && (Board::gameboxess[x + 1][y - diraction].getPiece() != NULL)) {
 		if ((&Board::gameboxess[x + 1][y - diraction])->getPiece()->getColor() != color) {
 			legalMoves.insert(&Board::gameboxess[x + 1][y - diraction]); //right corner
 		}

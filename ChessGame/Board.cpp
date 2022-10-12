@@ -53,6 +53,7 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 {
 	int box_x = cor_x / (Window::SQUARE_SIZE / 8);
 	int box_y = cor_y / (Window::SQUARE_SIZE / 8);
+
 	if (cor_x > Window::SQUARE_SIZE || cor_y > Window::SQUARE_SIZE) {
 		std::cout << " outside " << box_x << " " << box_y << std::endl;
 		return;
@@ -64,18 +65,25 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		return;
 	}
 	if (playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::WHITE)) {
-
 		//to do get the player move
 		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
 		//check if king is in check mate
-
 		boxtoLight = whitePlayer->play(selectedBox->getPiece(), &checkmate);
+		highlightKing(checkmate, whitePlayer);
+	
 	}
 	else if (!playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::BLACK)) {
 		//to do get the player move
 		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
 		boxtoLight = blackPlayer->play(selectedBox->getPiece(), &checkmate);
+		highlightKing(checkmate, blackPlayer);
+
 	}
+
+
+
+
+
 	checkresult();
 	highlightboxs(true);
 
@@ -189,6 +197,13 @@ void Board::checkresult()
 		gameover = true;
 	}
 
+
+}
+void Board::highlightKing(bool checkmate, Player* player)
+{
+	King* k = player->getKing();
+	Box* b = k->getLocation();;
+	checkmate ? b->boxColor = { 255,0,0,0 } : b->boxColor = b->originalColor;
 
 }
 Board::~Board() {
