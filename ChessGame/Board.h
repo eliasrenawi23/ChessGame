@@ -35,7 +35,6 @@ public:
 	void resize();
 	~Board();
 private:
-	void RenderBox(Box* boxtorender);
 	void checkresult();
 
 };

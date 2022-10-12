@@ -6,6 +6,8 @@ Bishop::Bishop(Box* loc, PlayerColor color)
 {
 
 	location = loc;
+	x = (location->x) / Board::BoxWidthandHigth;
+	y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 	SDL_Surface* surface;
 
@@ -23,8 +25,7 @@ Bishop::Bishop(Box* loc, PlayerColor color)
 std::set<Box*>  Bishop::moveAndTake()
 {
 	std::cout << "Bishop clicked" << std::endl;
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 
 	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
 
@@ -59,8 +60,7 @@ std::set<Box*>  Bishop::moveAndTake()
 
 std::set<Box*> Bishop::PieceThreatMap(bool* checkmate)
 {
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 	std::set<Box*>  legalMoves;
 	std::set<Box*>  Diag1part1;
 	std::set<Box*>  Diag1part2;

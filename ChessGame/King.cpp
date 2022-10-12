@@ -6,6 +6,8 @@
 King::King(Box* loc, PlayerColor color)
 {
 	location = loc;
+	x = (location->x) / Board::BoxWidthandHigth;
+	y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 	SDL_Surface* surface;
 
@@ -24,8 +26,7 @@ King::King(Box* loc, PlayerColor color)
 std::set<Box*>  King::moveAndTake()
 {
 	std::cout << "King clicked" << std::endl;
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
 
@@ -39,7 +40,7 @@ std::set<Box*>  King::moveAndTake()
 			if (Board::gameboxess[i][j].getPiece() == NULL) {
 				legalMoves.insert(&Board::gameboxess[i][j]);
 			}
-			else if (Board::gameboxess[i][j].getPiece()->color != color) {
+			else if (Board::gameboxess[i][j].getPiece()->getColor() != color) {
 				legalMoves.insert(&Board::gameboxess[i][j]);
 			}
 		}
@@ -51,8 +52,7 @@ std::set<Box*>  King::moveAndTake()
 
 std::set<Box*> King::PieceThreatMap(bool* checkmate)
 {
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
 	for (int i = x - 1; i < n && i < (x + 2); i++) {
@@ -70,13 +70,11 @@ std::set<Box*> King::PieceThreatMap(bool* checkmate)
 std::set<Box*> King::getCoverPath()
 {
 	std::cout << "King::getCoverPath" << std::endl;
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+
 	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
 	std::set<Box*>  CoverPath;
 
-	std::set<Box*>  Diag1part1;
-	std::set<Box*>  Diag1part2;
+	std::set<Box*>  Diag1part1, Diag1part2;
 
 	Diag1part1 = checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath);
 	if (thretInPath)return Diag1part1;
@@ -86,8 +84,7 @@ std::set<Box*> King::getCoverPath()
 	thretInPath = false;
 
 
-	std::set<Box*>  Diag2part1;
-	std::set<Box*>  Diag2part2;
+	std::set<Box*>  Diag2part1, Diag2part2;
 
 	Diag2part1 = checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath);
 	if (thretInPath)return Diag2part1;
@@ -96,8 +93,7 @@ std::set<Box*> King::getCoverPath()
 	if (thretInPath)return Diag2part2;
 	thretInPath = false;
 
-	std::set<Box*>  rowPart1;
-	std::set<Box*>  rowPart2;
+	std::set<Box*>  rowPart1, rowPart2;
 
 	rowPart1 = rowMovs(x, y, 1, &thretInPath, &kingInPath);
 	if (thretInPath)return rowPart1;
@@ -108,8 +104,7 @@ std::set<Box*> King::getCoverPath()
 	thretInPath = false;
 
 
-	std::set<Box*>  colPart1;
-	std::set<Box*>  colPart2;
+	std::set<Box*>  colPart1, colPart2;
 
 	colPart1 = colMovs(x, y, 1, &thretInPath, &kingInPath);
 	if (thretInPath)return colPart1;
@@ -119,7 +114,84 @@ std::set<Box*> King::getCoverPath()
 	if (thretInPath)return colPart2;
 	thretInPath = false;
 
+	CoverPath.insert(checkKinghtCheckmate());
+	//must add the knight also
+
 	return CoverPath;
+}
+
+Box* King::checkKinghtCheckmate()
+{	
+	const int n = Board::rowBoxNmbersandCols;
+	//the Knight has 8 possible move at most
+
+	//1
+	if (x - 1 >= 0 && y - 2 >= 0 &&
+		((Board::gameboxess[x - 1][y - 2].getPiece() != NULL) || (Board::gameboxess[x - 1][y - 2].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x - 1][y - 2].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x - 1][y - 2];
+
+		}
+	}
+	//2
+
+	if (x + 1 < n && y - 2 >= 0 &&
+		((Board::gameboxess[x + 1][y - 2].getPiece() == NULL) || (Board::gameboxess[x + 1][y - 2].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x + 1][y - 2].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x + 1][y - 2];
+
+		}
+	}
+	//3
+	if (x - 1 >= 0 && y + 2 < n &&
+		((Board::gameboxess[x - 1][y + 2].getPiece() == NULL) || (Board::gameboxess[x - 1][y + 2].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x - 1][y + 2].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x - 1][y + 2];
+
+		}
+	}
+	//4
+	if (x + 1 < n && y + 2 < n &&
+		((Board::gameboxess[x + 1][y + 2].getPiece() == NULL) || (Board::gameboxess[x + 1][y + 2].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x + 1][y + 2].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x + 1][y + 2];
+
+		}
+	}
+	//////---------
+	//5
+	if (x - 2 >= 0 && y - 1 >= 0 &&
+		((Board::gameboxess[x - 2][y - 1].getPiece() == NULL) || (Board::gameboxess[x - 2][y - 1].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x - 2][y - 1].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x - 2][y - 1];
+
+		}
+	}
+	//6
+	if (x - 2 >= 0 && y + 1 < n &&
+		((Board::gameboxess[x - 2][y + 1].getPiece() == NULL) || (Board::gameboxess[x - 2][y + 1].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x - 2][y + 1].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x - 2][y + 1];
+
+		}
+	}
+	//7
+	if (x + 2 < n && y - 1 >= 0 &&
+		((Board::gameboxess[x + 2][y - 1].getPiece() == NULL) || (Board::gameboxess[x + 2][y - 1].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x + 1][y - 1].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x + 2][y - 1];
+
+		}
+	}
+	//8
+	if (x + 2 < n && y + 1 < n &&
+		((Board::gameboxess[x + 2][y + 1].getPiece() == NULL) || (Board::gameboxess[x + 2][y + 1].getPiece()->getColor() != color))) {
+		if (Knight* t = dynamic_cast<Knight*>(Board::gameboxess[x + 2][y + 1].getPiece())) {//  opponent  king in our path
+			return &Board::gameboxess[x + 2][y + 1];
+
+		}
+	}
+	return nullptr;
 }
 
 

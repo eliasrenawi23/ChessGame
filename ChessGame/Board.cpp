@@ -63,23 +63,20 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		std::cout << " this vox has no pice in it no action needed " << std::endl;
 		return;
 	}
-	if (playerTurn && (selectedBox->getPiece()->color == PlayerColor::WHITE)) {
-
+	if (playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::WHITE)) {
 
 		//to do get the player move
 		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
 		//check if king is in check mate
 
-
 		boxtoLight = whitePlayer->play(selectedBox->getPiece(), &checkmate);
 	}
-	else if (!playerTurn && (selectedBox->getPiece()->color == PlayerColor::BLACK)) {
+	else if (!playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::BLACK)) {
 		//to do get the player move
 		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
 		boxtoLight = blackPlayer->play(selectedBox->getPiece(), &checkmate);
 	}
 	checkresult();
-
 	highlightboxs(true);
 
 
@@ -140,7 +137,7 @@ void Board::RenderBoard()
 	{
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
-			RenderBox(&gameboxess[i][j]);
+			gameboxess[i][j].RenderBox();
 		}
 	}
 	RenderPieces();
@@ -150,8 +147,8 @@ void Board::RenderPieces()
 	std::vector<Piece*> BlackPieces = blackPlayer->getPieces();
 	for (int i = 0; i < BlackPieces.size(); i++)
 	{
-			BlackPieces[i]->renderPiece();
-		
+		BlackPieces[i]->renderPiece();
+
 	}
 	std::vector<Piece*> WhitePieces = whitePlayer->getPieces();
 	for (int i = 0; i < WhitePieces.size(); i++)
@@ -161,26 +158,8 @@ void Board::RenderPieces()
 			WhitePieces[i]->renderPiece();
 		}
 	}
-
-
 }
 
-void Board::RenderBox(Box* boxtorender)
-{
-	SDL_Rect highlightRect;
-	highlightRect.w = boxtorender->size;
-	highlightRect.h = boxtorender->size;
-	SDL_SetRenderDrawColor(Window::m_renderer, boxtorender->boxColor.r, boxtorender->boxColor.g, boxtorender->boxColor.b, boxtorender->boxColor.a);
-	highlightRect.x = boxtorender->x;
-	highlightRect.y = boxtorender->y;
-	SDL_RenderFillRect(Window::m_renderer, &highlightRect);
-}
-
-Board::~Board() {
-
-	delete whitePlayer;
-	delete blackPlayer;
-}
 
 void Board::checkresult()
 {
@@ -188,25 +167,35 @@ void Board::checkresult()
 	bool gameover = false;
 	PlayerColor winner = PlayerColor::BLACK;
 	if (boxtoLight.size() == 1) {
-		if((*boxtoLight.begin()) == selectedBox);
-		//the game is stelment 
-		stlemnt = true;
+		if ((*boxtoLight.begin()) == selectedBox) {
+			//the game is stelment 
+			stlemnt = true;
+			std::cout << " this game is statement  no one wins  " << std::endl;
+		}
 	}
-	else if (boxtoLight.empty() && checkmate ) {
+	else if (boxtoLight.empty() && checkmate) {
 		if (playerTurn) {
 			//black win 
-			winner = PlayerColor::BLACK;;
+			winner = PlayerColor::BLACK;
+			std::cout << " BLACK is winner " << std::endl;
+
+
 		}
 		else {
 			//white win
-			winner = PlayerColor::WHITE;;
+			winner = PlayerColor::WHITE;
+			std::cout << " WHITE is winner " << std::endl;
 		}
 		gameover = true;
 	}
 
-	
-}
 
+}
+Board::~Board() {
+
+	delete whitePlayer;
+	delete blackPlayer;
+}
 
 
 

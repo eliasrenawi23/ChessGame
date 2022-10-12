@@ -21,6 +21,7 @@ public:
 	Piece* getPiece();
 	Box(int x, int y, int size, SDL_Color originalColor);
 	void resize(int x, int y, int size);
+	void RenderBox();
 	~Box();
 
 

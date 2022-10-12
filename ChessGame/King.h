@@ -9,6 +9,9 @@ public:
     std::set<Box*> moveAndTake() override;
     std::set<Box*>PieceThreatMap(bool* checkmate)override;
     std::set<Box*> getCoverPath();
+private:
+    Box* checkKinghtCheckmate();
+
     ~King();
 };
 

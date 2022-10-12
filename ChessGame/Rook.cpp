@@ -6,6 +6,8 @@
 Rook::Rook(Box* loc, PlayerColor color)
 {
 	location = loc;
+	x = (location->x) / Board::BoxWidthandHigth;
+	y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 	SDL_Surface* surface;
 
@@ -23,8 +25,7 @@ Rook::Rook(Box* loc, PlayerColor color)
 std::set<Box*>  Rook::moveAndTake()
 {
 	std::cout << "Bishop clicked" << std::endl;
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+
 	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
 	std::set<Box*>  legalMoves;
 	std::set<Box*>  rowPart1;
@@ -55,8 +56,7 @@ std::set<Box*>  Rook::moveAndTake()
 
 std::set<Box*> Rook::PieceThreatMap(bool* checkmate)
 {
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 	std::set<Box*>  legalMoves;
 	std::set<Box*>  rowPart1;
 	std::set<Box*>  rowPart2;

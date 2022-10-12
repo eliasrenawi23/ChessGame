@@ -26,12 +26,9 @@ std::set<Box*>  Player::play(Piece* pieceToPlay, bool* checkmate)
 	int s = Board::BoxWidthandHigth;
 
 	if (dynamic_cast<King*>(pieceToPlay) != nullptr) {
-
-
 		std::cout << "player.cpp king must remove locations " << std::endl;
 		std::set<Box*>::iterator itr;
 		for (itr = opponentThreatMap.begin(); itr != opponentThreatMap.end(); itr++) {
-			//std::cout << "Player::play (*itr) " << (*itr)->x / s << " " << (*itr)->y / s << std::endl;
 			legalmoves.erase((*itr));
 		}
 	}
@@ -66,7 +63,6 @@ std::set<Box*> Player::ClacThreatMap(bool* checkmate)
 			ThreatMap.insert(PieceIThreatMap.begin(), PieceIThreatMap.end());
 		}
 	}
-
 	return ThreatMap;
 }
 

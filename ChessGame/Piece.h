@@ -11,19 +11,20 @@
 class Piece
 {
 
-public:
-
-	Box* location;
+protected:
 	PlayerColor color;
+	Box* location;
+	int x, y;
 	SDL_Texture* texture;
 	bool firstMove;
+
 public:
 	Piece();
 	Box* getLocation();
 	void setLocation(Box* loc);
 	virtual std::set<Box*> moveAndTake() = 0;
 	virtual std::set<Box*>PieceThreatMap(bool* checkmate) = 0;
-
+	PlayerColor getColor();
 	void renderPiece();
 	virtual ~Piece();
 protected:
@@ -31,15 +32,13 @@ protected:
 	std::set<Box*> rowMovs(int x, int y, int direction, bool* thretInPath, bool* kingInPath);
 	std::set<Box*> checkDiagonal(int x, int y, int direction, int Idirection, bool* thretInPath, bool* kingInPath);
 
-	std::set<Box*>colThreatMap(int x, int y, int direction,bool *checkmate);
+	std::set<Box*>colThreatMap(int x, int y, int direction, bool* checkmate);
 	std::set<Box*> rowThreatMap(int x, int y, int direction, bool* checkmate);
 	std::set<Box*> DiagonalThreatMap(int x, int y, int direction, int Idirection, bool* checkmate);
 
 
 	std::set<Box*> checkpinned(std::set<Box*> legalMoves);
-
-
-	bool ifInvokeCheckmate(int x, int y);
+	bool changecheckmateInThreatMap(int x, int y, bool* checkmate);
 
 };
 

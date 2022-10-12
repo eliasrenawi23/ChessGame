@@ -6,6 +6,8 @@
 Queen::Queen(Box* loc, PlayerColor color)
 {
 	location = loc;
+	x = (location->x) / Board::BoxWidthandHigth;
+	y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 	SDL_Surface* surface;
 
@@ -24,50 +26,44 @@ Queen::Queen(Box* loc, PlayerColor color)
 std::set<Box*>  Queen::moveAndTake()
 {
 	std::cout << "Queen clicked" << std::endl;
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
 	std::set<Box*>  legalMoves;
 
-	std::set<Box*>  Diag1part1;
-	std::set<Box*>  Diag1part2;
+	std::set<Box*>  Diag1part1,Diag1part2;
 
 	Diag1part1 = checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath);
 	Diag1part2 = checkDiagonal(x, y, -1, 1, &thretInPath, &kingInPath);
 	Diag1part1.insert( Diag1part2.begin(), Diag1part2.end());
 	if (thretInPath && kingInPath)return Diag1part1;
-	thretInPath = false;
-	kingInPath = false;
+	kingInPath= thretInPath = false;
 
-	std::set<Box*>  Diag2part1;
-	std::set<Box*>  Diag2part2;
+	std::set<Box*>  Diag2part1, Diag2part2;
 
 	Diag2part1 = checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath);
 	Diag2part2 = checkDiagonal(x, y, -1, -1, &thretInPath, &kingInPath);
 	Diag2part1.insert(Diag2part2.begin(), Diag2part2.end());
 
 	if (thretInPath && kingInPath)return Diag2part1;
-	thretInPath = false;
-	kingInPath = false;
+	kingInPath = thretInPath = false;
+
 
 
 
 	legalMoves.insert( Diag1part1.begin(), Diag1part1.end());
 	legalMoves.insert( Diag2part1.begin(), Diag2part1.end());
 
-	std::set<Box*>  rowPart1;
-	std::set<Box*>  rowPart2;
+	std::set<Box*>  rowPart1, rowPart2;
 
 	rowPart1 = rowMovs(x, y, 1, &thretInPath, &kingInPath);
 	rowPart2 = rowMovs(x, y, -1, &thretInPath, &kingInPath);
 	rowPart1.insert( rowPart2.begin(), rowPart2.end());
 
 	if (thretInPath && kingInPath)return rowPart1;
-	thretInPath = false;
-	kingInPath = false;
+	kingInPath = thretInPath = false;
 
-	std::set<Box*>  colPart1;
-	std::set<Box*>  colPart2;
+
+	std::set<Box*>  colPart1, colPart2;
 
 	colPart1 = colMovs(x, y, 1, &thretInPath, &kingInPath);
 	colPart2 = colMovs(x, y, -1, &thretInPath, &kingInPath);
@@ -86,20 +82,15 @@ std::set<Box*>  Queen::moveAndTake()
 
 std::set<Box*> Queen::PieceThreatMap(bool* checkmate)
 {
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
 
 	std::set<Box*>  legalMoves;
-
-	std::set<Box*>  Diag1part1;
-	std::set<Box*>  Diag1part2;
+	std::set<Box*>  Diag1part1,Diag1part2;
 
 	Diag1part1 = DiagonalThreatMap(x, y, 1, 1, checkmate);
 	Diag1part2 = DiagonalThreatMap(x, y, -1, 1, checkmate);
 	Diag1part1.insert(Diag1part2.begin(), Diag1part2.end());
 
-	std::set<Box*>  Diag2part1;
-	std::set<Box*>  Diag2part2;
+	std::set<Box*>  Diag2part1,Diag2part2;
 
 	Diag2part1 = DiagonalThreatMap(x, y, 1, -1, checkmate);
 	Diag2part2 = DiagonalThreatMap(x, y, -1, -1, checkmate);
@@ -108,15 +99,13 @@ std::set<Box*> Queen::PieceThreatMap(bool* checkmate)
 	legalMoves.insert(Diag1part1.begin(), Diag1part1.end());
 	legalMoves.insert(Diag2part1.begin(), Diag2part1.end());
 
-	std::set<Box*>  rowPart1;
-	std::set<Box*>  rowPart2;
+	std::set<Box*>  rowPart1, rowPart2;
 
 	rowPart1 = rowThreatMap(x, y, 1, checkmate);
 	rowPart2 = rowThreatMap(x, y, -1, checkmate);
 	rowPart1.insert(rowPart2.begin(), rowPart2.end());
 
-	std::set<Box*>  colPart1;
-	std::set<Box*>  colPart2;
+	std::set<Box*>  colPart1,colPart2;
 
 	colPart1 = colThreatMap(x, y, 1, checkmate);
 	colPart2 = colThreatMap(x, y, -1, checkmate);

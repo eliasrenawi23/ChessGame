@@ -14,9 +14,16 @@ Box* Piece::getLocation()
 void Piece::setLocation(Box* loc)
 {
 	location = loc;
+	x = (location->x) / Board::BoxWidthandHigth;
+	y= (location->y) / Board::BoxWidthandHigth;
 	firstMove = false;
 }
 
+
+PlayerColor Piece::getColor()
+{
+	return this->color;
+}
 
 void Piece::renderPiece()
 {
@@ -86,8 +93,7 @@ std::set<Box*> Piece::colThreatMap(int x, int y, int direction, bool* checkmate)
 		if (p == NULL) {
 			ClegalMoves.insert(&Board::gameboxess[x][i]);
 		}
-		else if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
-			*checkmate = true;
+		else if (changecheckmateInThreatMap(x, i, checkmate)) {
 			ClegalMoves.insert(&Board::gameboxess[x][i]);
 		}
 		else if (p != this) {
@@ -145,8 +151,7 @@ std::set<Box*> Piece::rowThreatMap(int x, int y, int direction, bool* checkmate)
 		if (p == NULL) {
 			RlegalMoves.insert(&Board::gameboxess[i][y]);
 		}
-		else if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
-			*checkmate = true;
+		else if (changecheckmateInThreatMap(i, y, checkmate)) {
 			RlegalMoves.insert(&Board::gameboxess[i][y]);
 		}
 		else if (p != this) {
@@ -161,7 +166,7 @@ std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection,
 {
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*> DlegalMoves;
-
+	bool notheing = false;
 	for (int i = x, j = y; i < n && j < n && i >= 0 && j >= 0; i = i + direction * Idirection, j = j + direction)
 	{
 		Piece* p = Board::gameboxess[i][j].getPiece();
@@ -175,6 +180,13 @@ std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection,
 			}
 			if (Bishop* t = dynamic_cast<Bishop*>(p)) {//  opponent  Rook in our path
 				*thretInPath = true;
+			}
+			if (Pawn* t = dynamic_cast<Pawn*>(p)) {//  opponent  Rook in our path
+				std::set<Box*> PawnThrat= t->PieceThreatMap(&notheing);
+				auto pos = PawnThrat.find(location);
+				if (pos != PawnThrat.end()) {
+					*thretInPath = true;
+				}
 			}
 			DlegalMoves.insert(&Board::gameboxess[i][j]);
 			break;
@@ -201,8 +213,7 @@ std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirect
 		if (p == NULL) {
 			DlegalMoves.insert(&Board::gameboxess[i][j]);
 		}
-		else if (p->color != color && dynamic_cast<King*>(p) != nullptr) {
-			*checkmate = true;
+		else if (changecheckmateInThreatMap(i,j,checkmate)) {
 			DlegalMoves.insert(&Board::gameboxess[i][j]);
 		}
 		else if (p != this) {
@@ -217,8 +228,7 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 {
 	std::set<Box*>  Diag1part1;
 	std::set<Box*>  Diag1part2;
-	int x = (location->x) / Board::BoxWidthandHigth;
-	int y = (location->y) / Board::BoxWidthandHigth;
+	
 	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
 	std::set<Box*> endres;
 	Diag1part1 = checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath);
@@ -229,12 +239,11 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 			std::inserter(endres, endres.begin()));
 		return endres;
 	}
-	thretInPath = false;
-	kingInPath = false;
+
+	kingInPath = thretInPath = false;
 	endres.clear();
 
-	std::set<Box*>  Diag2part1;
-	std::set<Box*>  Diag2part2;
+	std::set<Box*>  Diag2part1, Diag2part2;
 
 	Diag2part1 = checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath);
 	Diag2part2 = checkDiagonal(x, y, -1, -1, &thretInPath, &kingInPath);
@@ -246,13 +255,11 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 		return endres;
 
 	}
-	thretInPath = false;
-	kingInPath = false;
+	kingInPath = thretInPath = false;
 	endres.clear();
 
 
-	std::set<Box*>  rowPart1;
-	std::set<Box*>  rowPart2;
+	std::set<Box*>  rowPart1, rowPart2;
 
 	rowPart1 = rowMovs(x, y, 1, &thretInPath, &kingInPath);
 	rowPart2 = rowMovs(x, y, -1, &thretInPath, &kingInPath); //if thret in the row then cant move
@@ -261,13 +268,12 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 	if (thretInPath && kingInPath) {
 		return endres;//return empty set
 	}
-	thretInPath = false;
-	kingInPath = false;
+
+	kingInPath = thretInPath = false;
 	endres.clear();
 
 
-	std::set<Box*>  colPart1;
-	std::set<Box*>  colPart2;
+	std::set<Box*>  colPart1,colPart2;
 
 	colPart1 = colMovs(x, y, 1, &thretInPath, &kingInPath);
 	colPart2 = colMovs(x, y, -1, &thretInPath, &kingInPath);
@@ -278,5 +284,16 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 		return endres;
 	}
 	return legalMoves;
+}
+
+bool Piece::changecheckmateInThreatMap(int x, int y, bool* checkmate)
+{
+	if (King* t = dynamic_cast<King*>(Board::gameboxess[x][y].getPiece())) {//  opponent  king in our path
+		if (t->color != color) {
+			*checkmate = true;
+		}
+		return true;
+	}
+	return false;
 }
 
