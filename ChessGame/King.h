@@ -11,7 +11,7 @@ public:
     std::set<Box*> getCoverPath();
 private:
     Box* checkKinghtCheckmate();
-
+    std::set<Box*> checkCastle();
     ~King();
 };
 

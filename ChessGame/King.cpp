@@ -26,7 +26,7 @@ King::King(Box* loc, PlayerColor color)
 std::set<Box*>  King::moveAndTake()
 {
 	std::cout << "King clicked" << std::endl;
-	
+
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
 
@@ -45,14 +45,15 @@ std::set<Box*>  King::moveAndTake()
 			}
 		}
 	}
-
+	std::set<Box*>  CastleMoves= checkCastle();
+	legalMoves.insert(CastleMoves.begin(), CastleMoves.end());
 
 	return legalMoves;
 }
 
 std::set<Box*> King::PieceThreatMap(bool* checkmate)
 {
-	
+
 	int n = Board::rowBoxNmbersandCols;
 	std::set<Box*>  legalMoves;
 	for (int i = x - 1; i < n && i < (x + 2); i++) {
@@ -121,7 +122,7 @@ std::set<Box*> King::getCoverPath()
 }
 
 Box* King::checkKinghtCheckmate()
-{	
+{
 	const int n = Board::rowBoxNmbersandCols;
 	//the Knight has 8 possible move at most
 
@@ -192,6 +193,33 @@ Box* King::checkKinghtCheckmate()
 		}
 	}
 	return nullptr;
+}
+
+std::set<Box*> King::checkCastle()
+{
+	if (!firstMove) return std::set<Box*>();
+
+	std::set<Box*>  CastleMoves; //chec the two rooks
+
+	int y_cor = (color == PlayerColor::WHITE) ? 0 : 7; //get the y cordinate for the rooks 
+
+	Piece* p = Board::gameboxess[0][y].getPiece();
+	if (p != NULL && p->getColor() == color && (dynamic_cast<Rook*>(p)) && p->firstMove) { //first rook 
+		if (Board::gameboxess[1][y].getPiece() == NULL && Board::gameboxess[2][y].getPiece() == NULL && Board::gameboxess[3][y].getPiece() == NULL) {
+			CastleMoves.insert(&Board::gameboxess[0][y]);
+		}
+	}
+     p = Board::gameboxess[7][y].getPiece();
+	if (p != NULL && p->getColor() == color && (dynamic_cast<Rook*>(p)) && p->firstMove) { //second rook
+		if (Board::gameboxess[5][y].getPiece() == NULL && Board::gameboxess[6][y].getPiece() == NULL) {
+			CastleMoves.insert(&Board::gameboxess[6][y]);
+		}
+	}
+
+
+
+	return CastleMoves;
+
 }
 
 

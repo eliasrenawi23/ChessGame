@@ -75,12 +75,10 @@ bool Window::processEvents() {
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN://mouse pressed
-			std::cout << event.motion.x <<" "<< SQUARE_SIZE << std::endl;
 			m_gamBoard->getLegalMovs(event.motion.x, event.motion.y);
 
 			break;
 		case SDL_MOUSEBUTTONUP: //mouse relesde
-			//m_gamBoard->highlightboxs(false); //return the boxs to ther orginal color
 			m_gamBoard->play(event.motion.x, event.motion.y);
 			break;
 

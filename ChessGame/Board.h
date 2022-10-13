@@ -36,7 +36,8 @@ public:
 	~Board();
 private:
 	void checkresult();
-	void highlightKing(bool checkmate,Player* player);
+	void CastleMove(int new_x,int new_y);
+	void highlightKing();
 
 };
 

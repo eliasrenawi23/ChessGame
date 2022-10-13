@@ -11,12 +11,14 @@
 class Piece
 {
 
+public:
+	bool firstMove;
+
 protected:
 	PlayerColor color;
 	Box* location;
 	int x, y;
 	SDL_Texture* texture;
-	bool firstMove;
 
 public:
 	Piece();

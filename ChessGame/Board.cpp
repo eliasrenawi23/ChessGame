@@ -58,7 +58,7 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		std::cout << " outside " << box_x << " " << box_y << std::endl;
 		return;
 	}
-	std::cout << " box_x box_y MOUSE BUTTON Down : " << box_x << " " << box_y << std::endl;
+	//std::cout << " box_x box_y MOUSE BUTTON Down : " << box_x << " " << box_y << std::endl;
 	selectedBox = &gameboxess[box_x][box_y]; //selected box that contain piece to play with
 	if (selectedBox->getPiece() == NULL) { //this vox has no pice in it no action needed
 		std::cout << " this vox has no pice in it no action needed " << std::endl;
@@ -66,17 +66,14 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 	}
 	if (playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::WHITE)) {
 		//to do get the player move
-		whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
-		//check if king is in check mate
 		boxtoLight = whitePlayer->play(selectedBox->getPiece(), &checkmate);
-		highlightKing(checkmate, whitePlayer);
-	
+		//highlightKing(checkmate, whitePlayer);
+
 	}
 	else if (!playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::BLACK)) {
 		//to do get the player move
-		blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
 		boxtoLight = blackPlayer->play(selectedBox->getPiece(), &checkmate);
-		highlightKing(checkmate, blackPlayer);
+		// highlightKing(checkmate, blackPlayer);
 
 	}
 
@@ -114,12 +111,45 @@ void  Board::play(int cor_x, int cor_y) {
 		}
 		selectedBox->getPiece()->setLocation((*pos));   ///chenge the location of the piece
 		(*pos)->setPiece(selectedBox->getPiece());
+		CastleMove(box_x, box_y);		//check if Castle
+
+
 		selectedBox->setPiece(NULL);
-		playerTurn = !playerTurn; //change turns		
+
+		playerTurn = !playerTurn; //change turns	
+		checkmate = false;
+		if (playerTurn) {
+			whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
+		}
+		else {
+			blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
+		}
+		highlightKing();
 	}
-	checkmate = false;
+
 	highlightboxs(false);
 	boxtoLight.clear();
+
+}
+void Board::CastleMove(int new_x, int new_y) {
+
+	int old_x = selectedBox->x / (Window::SQUARE_SIZE / 8);
+	int old_y = selectedBox->y / (Window::SQUARE_SIZE / 8);
+
+	Box* k = &gameboxess[new_x][new_y]; // the box to play to 
+	
+	if(dynamic_cast<King*>(k->getPiece())==nullptr)return;
+
+	if (old_y == new_y && new_x - 2 == old_x) { // king Castle 
+		gameboxess[7][new_y].getPiece()->setLocation(&gameboxess[5][new_y]);   ///chenge the location of the piece
+		(&gameboxess[5][new_y])->setPiece(gameboxess[7][new_y].getPiece());
+	}
+	else if (old_y == new_y && new_x + 2 == old_x) {// queen Castle 
+		gameboxess[0][new_y].getPiece()->setLocation(&gameboxess[3][new_y]);   ///chenge the location of the piece
+		(&gameboxess[3][new_y])->setPiece(gameboxess[0][new_y].getPiece());
+	}
+
+
 
 }
 
@@ -199,10 +229,11 @@ void Board::checkresult()
 
 
 }
-void Board::highlightKing(bool checkmate, Player* player)
+void Board::highlightKing()
 {
-	King* k = player->getKing();
-	Box* b = k->getLocation();;
+
+	King* k = playerTurn ? whitePlayer->getKing() : blackPlayer->getKing();
+	Box* b = k->getLocation();
 	checkmate ? b->boxColor = { 255,0,0,0 } : b->boxColor = b->originalColor;
 
 }
