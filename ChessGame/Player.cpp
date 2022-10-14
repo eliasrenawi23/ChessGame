@@ -31,8 +31,6 @@ std::set<Box*>  Player::play(Piece * const pieceToPlay, bool* checkmate)
 		for (itr = opponentThreatMap.begin(); itr != opponentThreatMap.end(); itr++) {
 			legalmoves.erase((*itr));
 		}
-
-
 	}
 
 	else if ((*checkmate)) {
@@ -64,8 +62,6 @@ std::set<Box*> Player::ClacThreatMap(bool* checkmate)
 			ThreatMap.insert(PieceIThreatMap.begin(), PieceIThreatMap.end());
 		}
 	}
-
-
 	return ThreatMap;
 }
 

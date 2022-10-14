@@ -3,7 +3,8 @@
 
 int Board::BoxWidthandHigth;
 std::vector<std::vector<Box >> Board::gameboxess;
-Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL), checkmate(false)
+Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL), checkmate(false), En_passantPawn(NULL)
+
 {
 }
 void Board::init()
@@ -22,9 +23,6 @@ void Board::init()
 		gameboxess.push_back(temp);
 
 	}
-
-
-
 	whitePlayer = new Player(PlayerColor::WHITE);
 	whitePlayer->init();
 	blackPlayer = new Player(PlayerColor::BLACK);
@@ -77,10 +75,6 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 
 	}
 
-
-
-
-
 	checkresult();
 	highlightboxs(true);
 
@@ -104,16 +98,11 @@ void  Board::play(int cor_x, int cor_y) {
 	auto pos = boxtoLight.find(b);
 	if (pos != boxtoLight.end()) {
 		if ((*pos)->getPiece() != NULL) {
-			(*pos)->getPiece()->~Piece();
-			delete (*pos)->getPiece();
-			whitePlayer->updateVectorPieces((*pos)->getPiece());
-			blackPlayer->updateVectorPieces((*pos)->getPiece());
+			deletepiece((*pos)->getPiece());
 		}
-		selectedBox->getPiece()->setLocation((*pos));   ///chenge the location of the piece
-		(*pos)->setPiece(selectedBox->getPiece());
+		En_passant(box_x, box_y);
+		UpdatePieceLocation(selectedBox, (*pos));
 		CastleMove(box_x, box_y);		//check if Castle
-
-
 		selectedBox->setPiece(NULL);
 
 		playerTurn = !playerTurn; //change turns	
@@ -131,28 +120,76 @@ void  Board::play(int cor_x, int cor_y) {
 	boxtoLight.clear();
 
 }
+
+void Board::En_passant(int new_x, int new_y) {
+
+	Box* b = selectedBox; // the box to play to /// befor the move 
+	if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
+
+		int diraction = (b->getPiece()->getColor() == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
+
+		if (pawn->firstMove) {
+			if (En_passantPawn != NULL)
+				En_passantPawn->PoosblieEnPassant = false;
+			pawn->PoosblieEnPassant = true;
+			En_passantPawn = pawn;
+			return;
+		}
+		int old_x = selectedBox->x / (Window::SQUARE_SIZE / 8);
+		int old_y = selectedBox->y / (Window::SQUARE_SIZE / 8);
+		b = &gameboxess[old_x - 1][old_y]; //left box
+		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
+			if (pawn->PoosblieEnPassant && (old_x - 1 == new_x && new_y == old_y - diraction)) {
+				pawn->~Pawn();
+				deletepiece(b->getPiece());
+				b->setPiece(NULL);
+				return;
+			}
+		}
+		b = &gameboxess[old_x + 1][old_y]; //right box
+		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
+			if (pawn->PoosblieEnPassant && (old_x + 1 == new_x && new_y == old_y - diraction)) {
+				pawn->~Pawn();
+				deletepiece(b->getPiece());
+				b->setPiece(NULL);
+				return;
+			}
+		}
+	}
+	En_passantPawn->PoosblieEnPassant = false;
+
+}
+
 void Board::CastleMove(int new_x, int new_y) {
+
+	Box* k = &gameboxess[new_x][new_y]; // the box to play to 
+	if (dynamic_cast<King*>(k->getPiece()) == nullptr)return;
 
 	int old_x = selectedBox->x / (Window::SQUARE_SIZE / 8);
 	int old_y = selectedBox->y / (Window::SQUARE_SIZE / 8);
 
-	Box* k = &gameboxess[new_x][new_y]; // the box to play to 
-	
-	if(dynamic_cast<King*>(k->getPiece())==nullptr)return;
 
 	if (old_y == new_y && new_x - 2 == old_x) { // king Castle 
-		gameboxess[7][new_y].getPiece()->setLocation(&gameboxess[5][new_y]);   ///chenge the location of the piece
-		(&gameboxess[5][new_y])->setPiece(gameboxess[7][new_y].getPiece());
+		UpdatePieceLocation(&gameboxess[7][new_y], &gameboxess[5][new_y]);
 	}
 	else if (old_y == new_y && new_x + 2 == old_x) {// queen Castle 
-		gameboxess[0][new_y].getPiece()->setLocation(&gameboxess[3][new_y]);   ///chenge the location of the piece
-		(&gameboxess[3][new_y])->setPiece(gameboxess[0][new_y].getPiece());
+		UpdatePieceLocation(&gameboxess[0][new_y], &gameboxess[3][new_y]);
 	}
-
-
-
 }
 
+void Board::UpdatePieceLocation(Box* from, Box* to)
+{
+	from->getPiece()->setLocation(to);   ///chenge the location of the piece
+	to->setPiece(from->getPiece());
+}
+
+void Board::deletepiece(Piece* p)
+{
+	Player* player = (playerTurn) ? blackPlayer : whitePlayer;
+	p->~Piece();
+	delete p;
+	player->updateVectorPieces(p);
+}
 
 void Board::highlightboxs(bool onOrOff) {
 
@@ -216,8 +253,6 @@ void Board::checkresult()
 			//black win 
 			winner = PlayerColor::BLACK;
 			std::cout << " BLACK is winner " << std::endl;
-
-
 		}
 		else {
 			//white win
@@ -231,7 +266,6 @@ void Board::checkresult()
 }
 void Board::highlightKing()
 {
-
 	King* k = playerTurn ? whitePlayer->getKing() : blackPlayer->getKing();
 	Box* b = k->getLocation();
 	checkmate ? b->boxColor = { 255,0,0,0 } : b->boxColor = b->originalColor;

@@ -23,6 +23,7 @@ private:
 	std::set<Box*> boxtoLight;
 	Box* selectedBox;
 	bool checkmate;
+	Pawn* En_passantPawn;
 public:
 	Board();
 	void getLegalMovs(int cor_x, int cor_y);
@@ -37,7 +38,11 @@ public:
 private:
 	void checkresult();
 	void CastleMove(int new_x,int new_y);
+	void En_passant(int new_x,int new_y);
 	void highlightKing();
+	void deletepiece(Piece * p);
+
+	void UpdatePieceLocation(Box *from,Box *to);
 
 };
 
