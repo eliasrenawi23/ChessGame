@@ -104,8 +104,8 @@ void Player::init()
 	Pieces.push_back(new Rook(&(Board::gameboxess[7][restofPiecesYPostion]), color));//Rook2
 	Board::gameboxess[7][restofPiecesYPostion].setPiece(Pieces.back());
 
+	Pieces.push_back(new Queen(&(Board::gameboxess[3][restofPiecesYPostion]),color ));//Queen
 
-	Pieces.push_back(new Queen(&(Board::gameboxess[3][restofPiecesYPostion]), color));//Queen
 	Board::gameboxess[3][restofPiecesYPostion].setPiece(Pieces.back());
 	Pieces.push_back(new King(&(Board::gameboxess[4][restofPiecesYPostion]), color));//King
 	Board::gameboxess[4][restofPiecesYPostion].setPiece(Pieces.back());

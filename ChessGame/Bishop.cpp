@@ -5,9 +5,9 @@
 Bishop::Bishop(Box* loc, PlayerColor color)
 {
 
-	location = loc;
-	x = (location->x) / Board::BoxWidthandHigth;
-	y = (location->y) / Board::BoxWidthandHigth;
+	this->location = loc;
+	this->x = (location->x) / Board::BoxWidthandHigth;
+	this->y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 	SDL_Surface* surface;
 

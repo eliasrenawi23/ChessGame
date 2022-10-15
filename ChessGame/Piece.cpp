@@ -289,7 +289,7 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves)
 bool Piece::changecheckmateInThreatMap(int x, int y, bool* checkmate)
 {
 	if (King* t = dynamic_cast<King*>(Board::gameboxess[x][y].getPiece())) {//  opponent  king in our path
-		if (t->color != color) {
+		if (t->getColor() != color) {
 			*checkmate = true;
 		}
 		return true;

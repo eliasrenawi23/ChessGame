@@ -1,2 +1,7 @@
-﻿  Board.cpp
+﻿  Bishop.cpp
+  King.cpp
+  Knight.cpp
+  Pawn.cpp
+  Rook.cpp
+  Generating Code...
   ChessGame.vcxproj -> C:\Users\123\Documents\GitHub\ChessGame\x64\Debug\ChessGame.exe

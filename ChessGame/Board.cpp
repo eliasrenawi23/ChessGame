@@ -182,6 +182,7 @@ void Board::UpdatePieceLocation(Box* from, Box* to)
 {
 	from->getPiece()->setLocation(to);   ///chenge the location of the piece
 	to->setPiece(from->getPiece());
+	from->setPiece(NULL);
 }
 
 void Board::deletepiece(Box* b)
