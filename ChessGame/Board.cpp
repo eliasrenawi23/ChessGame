@@ -98,7 +98,7 @@ void  Board::play(int cor_x, int cor_y) {
 	auto pos = boxtoLight.find(b);
 	if (pos != boxtoLight.end()) {
 		if ((*pos)->getPiece() != NULL) {
-			deletepiece((*pos)->getPiece());
+			deletepiece((*pos));
 		}
 		En_passant(box_x, box_y);
 		UpdatePieceLocation(selectedBox, (*pos));
@@ -125,8 +125,8 @@ void Board::En_passant(int new_x, int new_y) {
 
 	Box* b = selectedBox; // the box to play to /// befor the move 
 	if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
-
 		int diraction = (b->getPiece()->getColor() == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
+
 
 		if (pawn->firstMove) {
 			if (En_passantPawn != NULL)
@@ -137,27 +137,26 @@ void Board::En_passant(int new_x, int new_y) {
 		}
 		int old_x = selectedBox->x / (Window::SQUARE_SIZE / 8);
 		int old_y = selectedBox->y / (Window::SQUARE_SIZE / 8);
-		b = &gameboxess[old_x - 1][old_y]; //left box
+
+		en_passasntDelete(old_x-1, old_y, new_x, new_y, diraction);
+		en_passasntDelete(old_x+1, old_y, new_x, new_y, diraction);
+		En_passantPawn->PoosblieEnPassant = false;
+
+	}
+
+}
+void Board::en_passasntDelete(int old_x, int old_y, int new_x, int new_y, int diraction)
+{
+	if (old_x  >= 0&& old_x<rowBoxNmbersandCols) {
+		Box *b = &gameboxess[old_x][old_y]; //left box
 		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
-			if (pawn->PoosblieEnPassant && (old_x - 1 == new_x && new_y == old_y - diraction)) {
+			if (pawn->PoosblieEnPassant && (old_x == new_x && new_y == old_y - diraction)) {
 				pawn->~Pawn();
-				deletepiece(b->getPiece());
-				b->setPiece(NULL);
-				return;
-			}
-		}
-		b = &gameboxess[old_x + 1][old_y]; //right box
-		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
-			if (pawn->PoosblieEnPassant && (old_x + 1 == new_x && new_y == old_y - diraction)) {
-				pawn->~Pawn();
-				deletepiece(b->getPiece());
-				b->setPiece(NULL);
+				deletepiece(b);
 				return;
 			}
 		}
 	}
-	En_passantPawn->PoosblieEnPassant = false;
-
 }
 
 void Board::CastleMove(int new_x, int new_y) {
@@ -177,17 +176,21 @@ void Board::CastleMove(int new_x, int new_y) {
 	}
 }
 
+
+
 void Board::UpdatePieceLocation(Box* from, Box* to)
 {
 	from->getPiece()->setLocation(to);   ///chenge the location of the piece
 	to->setPiece(from->getPiece());
 }
 
-void Board::deletepiece(Piece* p)
+void Board::deletepiece(Box* b)
 {
+	Piece* p = b->getPiece();
 	Player* player = (playerTurn) ? blackPlayer : whitePlayer;
 	p->~Piece();
 	delete p;
+	b->setPiece(NULL);
 	player->updateVectorPieces(p);
 }
 

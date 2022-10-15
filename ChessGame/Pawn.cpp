@@ -56,17 +56,19 @@ Box* Pawn::CheckEnPassant()
 {
 	int diraction = (color == PlayerColor::WHITE) ? 1 : -1;//if white move -1 id black move 1
 	int n = Board::rowBoxNmbersandCols;
+	Piece* p;
+		if (x - 1 >= 0 && y - diraction >= 0 && y - diraction < n && (Board::gameboxess[x - 1][y - diraction].getPiece() == NULL)) {
+			p = (&Board::gameboxess[x - 1][y])->getPiece();
 
-	Piece* p = (&Board::gameboxess[x - 1][y])->getPiece();
-	if (x - 1 >= 0 && y - diraction >= 0 && y - diraction < n && (Board::gameboxess[x - 1][y - diraction].getPiece() == NULL)) {
-		if (Pawn* pawn = dynamic_cast<Pawn*>(p)) {
-			if (pawn->getColor() != color && pawn->PoosblieEnPassant) {
-				return(&Board::gameboxess[x - 1][y - diraction]); //left corner
+			if (Pawn* pawn = dynamic_cast<Pawn*>(p)) {
+				if (pawn->getColor() != color && pawn->PoosblieEnPassant) {
+					return(&Board::gameboxess[x - 1][y - diraction]); //left corner
+				}
 			}
 		}
-	}
-	p = (&Board::gameboxess[x + 1][y])->getPiece();
+
 	if (x + 1 < n && y - diraction >= 0 && y - diraction < n && (Board::gameboxess[x + 1][y - diraction].getPiece() == NULL)) {
+		p = (&Board::gameboxess[x + 1][y])->getPiece();
 		if (Pawn* pawn = dynamic_cast<Pawn*>(p)) {
 			if (pawn->getColor() != color && pawn->PoosblieEnPassant) {
 				return (&Board::gameboxess[x + 1][y - diraction]); //right corner

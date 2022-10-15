@@ -40,9 +40,9 @@ private:
 	void CastleMove(int new_x,int new_y);
 	void En_passant(int new_x,int new_y);
 	void highlightKing();
-	void deletepiece(Piece * p);
+	void deletepiece(Box * b);
 
 	void UpdatePieceLocation(Box *from,Box *to);
-
+	void en_passasntDelete(int x,int y, int new_x,int new_y,int diraction);
 };
 
