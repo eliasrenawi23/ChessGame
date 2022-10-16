@@ -89,14 +89,17 @@ void  Board::play(int cor_x, int cor_y) {
 		std::cout << " out of range " << box_x << " " << box_y << std::endl;
 		return;
 	}
+	if (boxtoLight.empty()) {
+		handle_promotion(box_x, box_y, &promotion);
+		return;
+	}
 	//if player didnot change the piece location
 	if (boxtoLight.empty() || (selectedBox->x / (Window::SQUARE_SIZE / 8) == box_x && selectedBox->y / (Window::SQUARE_SIZE / 8) == box_y)) {
-		handle_promotion(box_x, box_y, &promotion);
-
 		highlightboxs(false);
 		boxtoLight.clear();
 		return;
 	}
+
 	std::set<Box*>::iterator itr;
 	Box* b = &gameboxess[box_x][box_y]; // the box to play to 
 	auto pos = boxtoLight.find(b);
@@ -108,9 +111,8 @@ void  Board::play(int cor_x, int cor_y) {
 		UpdatePieceLocation(selectedBox, (*pos));
 		CastleMove(box_x, box_y);		//check if Castle
 
-		//if (dynamic_cast<Pawn*>(gameboxess[box_x][box_y].getPiece())) {
-			handle_promotion(box_x, box_y, &promotion);
-		//}
+		handle_promotion(box_x, box_y, &promotion);
+
 		selectedBox->setPiece(NULL);
 
 		playerTurn = !playerTurn; //change turns	
@@ -199,10 +201,11 @@ void Board::handle_promotion(int box_x, int box_y, bool* promotion)
 		playerTurn ? whitePlayer->handle_promotion(true) : blackPlayer->handle_promotion(true);
 		*promotion = true;
 		promotionBox = &gameboxess[box_x][box_y];
+		playerTurn = !playerTurn; //we flip the turn twice to bak to current player
+
 	}
 	else if (*promotion)
 	{
-
 		Piece* p = selectedBox->getPiece();//what the player selected queen ? bishop rook?...
 		if (p == NULL)return;
 		int promotion_x = promotionBox->x / (Window::SQUARE_SIZE / 8);
@@ -216,18 +219,10 @@ void Board::handle_promotion(int box_x, int box_y, bool* promotion)
 			gameboxess[i][4].boxColor = gameboxess[i][4].originalColor;
 			gameboxess[i][4].setPiece(oldPieces[i - 2]); //return the piecess
 		}
+		oldPieces.clear();
+		playerTurn = !playerTurn; //we flip the turn twice to bak to current player
+
 	}
-
-	playerTurn = !playerTurn; //we flip the turn twice to bak to current player
-
-
-
-	//set new piecess
-	/*promotion_Options.insert(&gameboxess[3][3]);
-	promotion_Options.insert(&gameboxess[4][3]);
-	promotion_Options.insert(&gameboxess[5][3]);*/
-
-
 
 }
 
