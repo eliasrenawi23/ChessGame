@@ -17,7 +17,7 @@ std::vector<Piece*> Player::getPieces()
 	return this->Pieces;
 }
 
-std::set<Box*>  Player::play(Piece * const pieceToPlay, bool* checkmate)
+std::set<Box*>  Player::play(Piece* const pieceToPlay, bool* checkmate)
 {
 
 	std::set<Box*> legalmoves = pieceToPlay->moveAndTake();
@@ -104,7 +104,7 @@ void Player::init()
 	Pieces.push_back(new Rook(&(Board::gameboxess[7][restofPiecesYPostion]), color));//Rook2
 	Board::gameboxess[7][restofPiecesYPostion].setPiece(Pieces.back());
 
-	Pieces.push_back(new Queen(&(Board::gameboxess[3][restofPiecesYPostion]),color ));//Queen
+	Pieces.push_back(new Queen(&(Board::gameboxess[3][restofPiecesYPostion]), color));//Queen
 
 	Board::gameboxess[3][restofPiecesYPostion].setPiece(Pieces.back());
 	Pieces.push_back(new King(&(Board::gameboxess[4][restofPiecesYPostion]), color));//King
@@ -113,6 +113,66 @@ void Player::init()
 
 
 
+}
+
+void Player::handle_promotion(bool promotionmenu)
+{
+	//std::vector<Box*>PiecesOptions;
+	if (promotionmenu) {
+		PiecesOptions.push_back(new Queen(&(Board::gameboxess[2][4]), color));//Queen
+		Board::gameboxess[2][4].setPiece(PiecesOptions.back());
+
+		PiecesOptions.push_back(new Knight(&(Board::gameboxess[3][4]), color));//Knight
+		Board::gameboxess[3][4].setPiece(PiecesOptions.back());
+
+		PiecesOptions.push_back(new Rook(&(Board::gameboxess[4][4]), color));//Rook
+		Board::gameboxess[4][4].setPiece(PiecesOptions.back());
+
+		PiecesOptions.push_back(new Bishop(&(Board::gameboxess[5][4]), color));    //Bishop
+		Board::gameboxess[5][4].setPiece(PiecesOptions.back());
+
+	}
+	else {
+		for (int i = 0; i < PiecesOptions.size(); i++)
+		{
+
+			delete PiecesOptions[i];
+			/*Board::gameboxess[i][4].getPiece()->~Piece();
+			delete Board::gameboxess[i][4].getPiece();
+			Board::gameboxess[i][4].setPiece(NULL);*/
+		}
+		PiecesOptions.clear();
+	}
+
+}
+
+void Player::dopromotion(Piece* selsectedPiece, int cor_x, int cor_y)
+{
+
+	//selsectedPiece Queen ? bishop rook?...
+	// int cor x cor y is to where to put it
+	if (dynamic_cast<Queen*>(selsectedPiece)) {
+		Pieces.push_back(new Queen(&(Board::gameboxess[cor_x][cor_y]), color));    
+	}
+	else if (dynamic_cast<Bishop*>(selsectedPiece)) {
+		Pieces.push_back(new Bishop(&(Board::gameboxess[cor_x][cor_y]), color));   
+	}
+	else if (dynamic_cast<Rook*>(selsectedPiece)) {
+		Pieces.push_back(new Rook(&(Board::gameboxess[cor_x][cor_y]), color));    
+	}
+	else if (dynamic_cast<Knight*>(selsectedPiece)) {
+		Pieces.push_back(new Knight(&(Board::gameboxess[cor_x][cor_y]), color));   
+	}
+	else {
+		return;
+	}
+	Board::gameboxess[cor_x][cor_y].setPiece(Pieces.back());
+	handle_promotion(false); //delete the list
+}
+
+std::vector<Piece*> Player::getPiecesOptions()
+{
+	return PiecesOptions;
 }
 
 Player::~Player()

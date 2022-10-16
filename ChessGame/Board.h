@@ -21,8 +21,11 @@ private:
 	Player* blackPlayer;
 	bool playerTurn; //false for black and true for white
 	std::set<Box*> boxtoLight;
+	std::vector< Piece*> oldPieces;
 	Box* selectedBox;
+	Box* promotionBox;
 	bool checkmate;
+	bool promotion;
 	Pawn* En_passantPawn;
 public:
 	Board();
@@ -41,7 +44,7 @@ private:
 	void En_passant(int new_x,int new_y);
 	void highlightKing();
 	void deletepiece(Box * b);
-
+	void handle_promotion(int box_x, int box_y,bool *promotion);
 	void UpdatePieceLocation(Box *from,Box *to);
 	void en_passasntDelete(int x,int y, int new_x,int new_y,int diraction);
 };

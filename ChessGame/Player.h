@@ -20,6 +20,8 @@ private:
 	PlayerColor color;
 	std::vector<Piece*> Pieces;
 	std::set<Box*> opponentThreatMap;
+	std::vector<Piece*> PiecesOptions;
+
 public:
 	Player(PlayerColor color );
 	std::vector<Piece*> getPieces();
@@ -28,6 +30,9 @@ public:
 	void updateVectorPieces(Piece* p);
 	void setopponentThreatMap(std::set<Box*> opponentThreatMap);
 	void init();
+	void handle_promotion(bool promotionmenu);
+	void dopromotion(Piece* selsectedPiece, int cor_x, int cor_y);
+	std::vector<Piece*> getPiecesOptions();
 	~Player();
 	King* getKing();
 

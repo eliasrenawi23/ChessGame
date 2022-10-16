@@ -3,8 +3,8 @@
 
 int Board::BoxWidthandHigth;
 std::vector<std::vector<Box >> Board::gameboxess;
-Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL), checkmate(false), En_passantPawn(NULL)
-
+Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selectedBox(NULL),
+checkmate(false), En_passantPawn(NULL), promotion(false), promotionBox(NULL)
 {
 }
 void Board::init()
@@ -62,6 +62,8 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 		std::cout << " this vox has no pice in it no action needed " << std::endl;
 		return;
 	}
+	if (promotion)return; //promotion is actev no need to do any thing hear
+
 	if (playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::WHITE)) {
 		//to do get the player move
 		boxtoLight = whitePlayer->play(selectedBox->getPiece(), &checkmate);
@@ -89,6 +91,8 @@ void  Board::play(int cor_x, int cor_y) {
 	}
 	//if player didnot change the piece location
 	if (boxtoLight.empty() || (selectedBox->x / (Window::SQUARE_SIZE / 8) == box_x && selectedBox->y / (Window::SQUARE_SIZE / 8) == box_y)) {
+		handle_promotion(box_x, box_y, &promotion);
+
 		highlightboxs(false);
 		boxtoLight.clear();
 		return;
@@ -103,6 +107,10 @@ void  Board::play(int cor_x, int cor_y) {
 		En_passant(box_x, box_y);
 		UpdatePieceLocation(selectedBox, (*pos));
 		CastleMove(box_x, box_y);		//check if Castle
+
+		//if (dynamic_cast<Pawn*>(gameboxess[box_x][box_y].getPiece())) {
+			handle_promotion(box_x, box_y, &promotion);
+		//}
 		selectedBox->setPiece(NULL);
 
 		playerTurn = !playerTurn; //change turns	
@@ -138,8 +146,8 @@ void Board::En_passant(int new_x, int new_y) {
 		int old_x = selectedBox->x / (Window::SQUARE_SIZE / 8);
 		int old_y = selectedBox->y / (Window::SQUARE_SIZE / 8);
 
-		en_passasntDelete(old_x-1, old_y, new_x, new_y, diraction);
-		en_passasntDelete(old_x+1, old_y, new_x, new_y, diraction);
+		en_passasntDelete(old_x - 1, old_y, new_x, new_y, diraction);
+		en_passasntDelete(old_x + 1, old_y, new_x, new_y, diraction);
 		En_passantPawn->PoosblieEnPassant = false;
 
 	}
@@ -147,8 +155,8 @@ void Board::En_passant(int new_x, int new_y) {
 }
 void Board::en_passasntDelete(int old_x, int old_y, int new_x, int new_y, int diraction)
 {
-	if (old_x  >= 0&& old_x<rowBoxNmbersandCols) {
-		Box *b = &gameboxess[old_x][old_y]; //left box
+	if (old_x >= 0 && old_x < rowBoxNmbersandCols) {
+		Box* b = &gameboxess[old_x][old_y]; //left box
 		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
 			if (pawn->PoosblieEnPassant && (old_x == new_x && new_y == old_y - diraction)) {
 				pawn->~Pawn();
@@ -178,6 +186,53 @@ void Board::CastleMove(int new_x, int new_y) {
 
 
 
+void Board::handle_promotion(int box_x, int box_y, bool* promotion)
+{
+	if ((box_y == 0 || box_y == 7) && *promotion == false && dynamic_cast<Pawn*>(gameboxess[box_x][box_y].getPiece())) {// initilaize promotions
+		//prepare promotion
+		for (int i = 2; i < 6; i++) {   //save the old piesess
+			oldPieces.push_back(gameboxess[i][4].getPiece());
+			gameboxess[i][4].boxColor = { 160, 32, 240 ,SDL_ALPHA_OPAQUE };
+
+		}
+		//send to player class
+		playerTurn ? whitePlayer->handle_promotion(true) : blackPlayer->handle_promotion(true);
+		*promotion = true;
+		promotionBox = &gameboxess[box_x][box_y];
+	}
+	else if (*promotion)
+	{
+
+		Piece* p = selectedBox->getPiece();//what the player selected queen ? bishop rook?...
+		if (p == NULL)return;
+		int promotion_x = promotionBox->x / (Window::SQUARE_SIZE / 8);
+		int promotion_y = promotionBox->y / (Window::SQUARE_SIZE / 8);
+		deletepiece(promotionBox);
+		playerTurn ? whitePlayer->dopromotion(p, promotion_x, promotion_y) : blackPlayer->dopromotion(p, promotion_x, promotion_y);
+		*promotion = false;
+
+		//remove the list
+		for (int i = 2; i < 6; i++) {   //save the old piesess
+			gameboxess[i][4].boxColor = gameboxess[i][4].originalColor;
+			gameboxess[i][4].setPiece(oldPieces[i - 2]); //return the piecess
+		}
+	}
+
+	playerTurn = !playerTurn; //we flip the turn twice to bak to current player
+
+
+
+	//set new piecess
+	/*promotion_Options.insert(&gameboxess[3][3]);
+	promotion_Options.insert(&gameboxess[4][3]);
+	promotion_Options.insert(&gameboxess[5][3]);*/
+
+
+
+}
+
+
+
 void Board::UpdatePieceLocation(Box* from, Box* to)
 {
 	from->getPiece()->setLocation(to);   ///chenge the location of the piece
@@ -188,11 +243,12 @@ void Board::UpdatePieceLocation(Box* from, Box* to)
 void Board::deletepiece(Box* b)
 {
 	Piece* p = b->getPiece();
-	Player* player = (playerTurn) ? blackPlayer : whitePlayer;
-	p->~Piece();
+	//Player* player = (playerTurn) ? blackPlayer : whitePlayer;
+	//p->~Piece();
 	delete p;
 	b->setPiece(NULL);
-	player->updateVectorPieces(p);
+	blackPlayer->updateVectorPieces(p);
+	whitePlayer->updateVectorPieces(p);
 }
 
 void Board::highlightboxs(bool onOrOff) {
@@ -235,6 +291,15 @@ void Board::RenderPieces()
 		if (WhitePieces[i] != nullptr) {
 
 			WhitePieces[i]->renderPiece();
+		}
+	}
+	std::vector<Piece*> menu = playerTurn ? whitePlayer->getPiecesOptions() : blackPlayer->getPiecesOptions();
+
+	for (int i = 0; i < menu.size(); i++)
+	{
+		if (menu[i] != nullptr) {
+
+			menu[i]->renderPiece();
 		}
 	}
 }
