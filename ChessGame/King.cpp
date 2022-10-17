@@ -206,7 +206,7 @@ std::set<Box*> King::checkCastle()
 	Piece* p = Board::gameboxess[0][y].getPiece();
 	if (p != NULL && p->getColor() == color && (dynamic_cast<Rook*>(p)) && p->firstMove) { //first rook 
 		if (Board::gameboxess[1][y].getPiece() == NULL && Board::gameboxess[2][y].getPiece() == NULL && Board::gameboxess[3][y].getPiece() == NULL) {
-			CastleMoves.insert(&Board::gameboxess[0][y]);
+			CastleMoves.insert(&Board::gameboxess[2][y]);
 		}
 	}
      p = Board::gameboxess[7][y].getPiece();
