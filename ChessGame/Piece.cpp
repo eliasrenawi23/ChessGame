@@ -125,7 +125,7 @@ std::set<Box*> Piece::rowMovs(int x, int y, int direction, bool* thretInPath, bo
 	return legalMoves;
 }
 
-
+// --- ROW THREAT MAP ---
 std::set<Box*> Piece::rowThreatMap(int x, int y, int direction, bool* checkmate) {
 	std::set<Box*> legalMoves;
 	int n = Board::rowBoxNmbersandCols;
@@ -143,7 +143,6 @@ std::set<Box*> Piece::rowThreatMap(int x, int y, int direction, bool* checkmate)
 			break;
 		}
 	}
-
 	return legalMoves;
 }
 
@@ -174,10 +173,10 @@ std::set<Box*> Piece::checkDiagonal(int x, int y, int direction, int Idirection,
 	return legalMoves;
 }
 
+// --- DIAGONAL THREAT MAP ---
 std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirection, bool* checkmate) {
 	std::set<Box*> legalMoves;
 	int n = Board::rowBoxNmbersandCols;
-
 	for (int i = x, j = y; i < n && j < n && i >= 0 && j >= 0; i += direction * Idirection, j += direction) {
 		Piece* p = Board::gameboxess[i][j].getPiece();
 		if (p == nullptr) {
@@ -191,62 +190,73 @@ std::set<Box*> Piece::DiagonalThreatMap(int x, int y, int direction, int Idirect
 			break;
 		}
 	}
+	return legalMoves;
+}
+
+
+// --- CHECK PINNED ---
+// This function returns only the moves that lie on the line between the piece and its own king 
+// if it is pinned by an enemy piece.
+std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves) {
+	std::set<Box*> intersection;
+
+	// Check Diagonals (both directions)
+	{
+		bool threat1 = false, king1 = false;
+		std::set<Box*> diagA = checkDiagonal(x, y, 1, 1, &threat1, &king1);
+		bool threat2 = false, king2 = false;
+		std::set<Box*> diagB = checkDiagonal(x, y, -1, 1, &threat2, &king2);
+		if ((threat1 && king1) || (threat2 && king2)) {
+			std::set<Box*> diagCombined = diagA;
+			diagCombined.insert(diagB.begin(), diagB.end());
+			std::set_intersection(legalMoves.begin(), legalMoves.end(),
+				diagCombined.begin(), diagCombined.end(),
+				std::inserter(intersection, intersection.begin()));
+			if (!intersection.empty())
+				return intersection;
+		}
+	}
+
+	// Check Row
+	{
+		bool threatPos = false, kingPos = false;
+		std::set<Box*> rowPos = rowMovs(x, y, 1, &threatPos, &kingPos);
+		bool threatNeg = false, kingNeg = false;
+		std::set<Box*> rowNeg = rowMovs(x, y, -1, &threatNeg, &kingNeg);
+		if ((threatPos && kingPos) || (threatNeg && kingNeg)) {
+			std::set<Box*> rowCombined = rowPos;
+			rowCombined.insert(rowNeg.begin(), rowNeg.end());
+			std::set_intersection(legalMoves.begin(), legalMoves.end(),
+				rowCombined.begin(), rowCombined.end(),
+				std::inserter(intersection, intersection.begin()));
+			if (!intersection.empty())
+				return intersection;
+		}
+	}
+
+	// Check Column
+	{
+		bool threatPos = false, kingPos = false;
+		std::set<Box*> colPos = colMovs(x, y, 1, &threatPos, &kingPos);
+		bool threatNeg = false, kingNeg = false;
+		std::set<Box*> colNeg = colMovs(x, y, -1, &threatNeg, &kingNeg);
+		if ((threatPos && kingPos) || (threatNeg && kingNeg)) {
+			std::set<Box*> colCombined = colPos;
+			colCombined.insert(colNeg.begin(), colNeg.end());
+			std::set_intersection(legalMoves.begin(), legalMoves.end(),
+				colCombined.begin(), colCombined.end(),
+				std::inserter(intersection, intersection.begin()));
+			if (!intersection.empty())
+				return intersection;
+		}
+	}
+
+	// If no pin detected in any direction, return the original legal moves.
 
 	return legalMoves;
 }
 
-std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves) {
-	std::set<Box*> pinnedMoves;
-	bool threatInPath = false, kingInPath = false;
 
-	// Check for diagonal threats
-	std::set<Box*> diag1Part1 = checkDiagonal(x, y, 1, 1, &threatInPath, &kingInPath);
-	std::set<Box*> diag1Part2 = checkDiagonal(x, y, -1, 1, &threatInPath, &kingInPath);
-	diag1Part1.insert(diag1Part2.begin(), diag1Part2.end());
-
-	// If a threat is detected, and the king is also in the path, check for pinned piece
-	if (threatInPath && kingInPath) {
-		std::set_intersection(legalMoves.begin(), legalMoves.end(), diag1Part1.begin(), diag1Part1.end(),
-			std::inserter(pinnedMoves, pinnedMoves.begin()));
-		return pinnedMoves;
-	}
-
-	// Reset flags and check the other diagonal
-	kingInPath = threatInPath = false;
-	std::set<Box*> diag2Part1 = checkDiagonal(x, y, 1, -1, &threatInPath, &kingInPath);
-	std::set<Box*> diag2Part2 = checkDiagonal(x, y, -1, -1, &threatInPath, &kingInPath);
-	diag2Part1.insert(diag2Part2.begin(), diag2Part2.end());
-
-	if (threatInPath && kingInPath) {
-		std::set_intersection(legalMoves.begin(), legalMoves.end(), diag2Part1.begin(), diag2Part1.end(),
-			std::inserter(pinnedMoves, pinnedMoves.begin()));
-		return pinnedMoves;
-	}
-
-	// Reset flags and check for row threats
-	kingInPath = threatInPath = false;
-	std::set<Box*> rowPart1 = rowMovs(x, y, 1, &threatInPath, &kingInPath);
-	std::set<Box*> rowPart2 = rowMovs(x, y, -1, &threatInPath, &kingInPath);
-	rowPart1.insert(rowPart2.begin(), rowPart2.end());
-
-	if (threatInPath && kingInPath) {
-		return pinnedMoves; // No legal moves if the piece is pinned in the row
-	}
-
-	// Reset flags and check for column threats
-	kingInPath = threatInPath = false;
-	std::set<Box*> colPart1 = colMovs(x, y, 1, &threatInPath, &kingInPath);
-	std::set<Box*> colPart2 = colMovs(x, y, -1, &threatInPath, &kingInPath);
-	colPart1.insert(colPart2.begin(), colPart2.end());
-
-	if (threatInPath && kingInPath) {
-		std::set_intersection(legalMoves.begin(), legalMoves.end(), colPart1.begin(), colPart1.end(),
-			std::inserter(pinnedMoves, pinnedMoves.begin()));
-		return pinnedMoves;
-	}
-
-	return legalMoves; // Return all legal moves if not pinned
-}
 
 
 bool Piece::changecheckmateInThreatMap(int x, int y, bool* checkmate) {

@@ -1,5 +1,7 @@
 #include "Bishop.h"
 #include "Window.h"
+#include <algorithm>
+
 
 
 Bishop::Bishop(Box* loc, PlayerColor color)
@@ -22,41 +24,62 @@ Bishop::Bishop(Box* loc, PlayerColor color)
 }
 
 
-std::set<Box*>  Bishop::moveAndTake()
+std::set<Box*> Bishop::moveAndTake()
 {
-	std::cout << "Bishop clicked" << std::endl;
-	
+    std::cout << "Bishop clicked" << std::endl;
 
-	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
+    // Helper lambda to combine all diagonal moves.
+    auto combineDiag = [&]() -> std::set<Box*> {
+        bool d1a = false, d1b = false;
+        std::set<Box*> diag1 = checkDiagonal(x, y, 1, 1, &d1a, &d1b);   // bottom-right
+        bool d2a = false, d2b = false;
+        std::set<Box*> diag2 = checkDiagonal(x, y, -1, 1, &d2a, &d2b);  // top-left
+        bool d3a = false, d3b = false;
+        std::set<Box*> diag3 = checkDiagonal(x, y, 1, -1, &d3a, &d3b);  // top-right
+        bool d4a = false, d4b = false;
+        std::set<Box*> diag4 = checkDiagonal(x, y, -1, -1, &d4a, &d4b); // bottom-left
 
-	std::set<Box*>  legalMoves;
-	std::set<Box*>  Diag1part1;
-	std::set<Box*>  Diag1part2;
+        std::set<Box*> result;
+        result.insert(diag1.begin(), diag1.end());
+        result.insert(diag2.begin(), diag2.end());
+        result.insert(diag3.begin(), diag3.end());
+        result.insert(diag4.begin(), diag4.end());
+        return result;
+        };
 
-	Diag1part1 = checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath); //i++ j++
-	Diag1part2 = checkDiagonal(x, y, -1, 1, &thretInPath, &kingInPath);//i-- j--
-	Diag1part1.insert( Diag1part2.begin(), Diag1part2.end());
+	// Helper lambda to check horizontal pinning.
+	auto isPinnedHorizontally = [&]() -> bool {
+		bool threatRowPos = false, kingRowPos = false;
+		std::set<Box*> rowPos = rowMovs(x, y, 1, &threatRowPos, &kingRowPos);
+		bool threatRowNeg = false, kingRowNeg = false;
+		std::set<Box*> rowNeg = rowMovs(x, y, -1, &threatRowNeg, &kingRowNeg);
+		// For a horizontal pin, the enemy threat must be on one side and the friendly king on the opposite side.
+		return (threatRowPos && kingRowNeg) || (threatRowNeg && kingRowPos);
+		};
 
-	if (thretInPath && kingInPath)return Diag1part1;
-	thretInPath = false;
-	kingInPath = false;
-
-	std::set<Box*>  Diag2part1;
-	std::set<Box*>  Diag2part2;
-
-	Diag2part1 = checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath);//i-- j++
-	Diag2part2 = checkDiagonal(x, y, -1, -1, &thretInPath, &kingInPath);//i++ j--
-	Diag2part1.insert( Diag2part2.begin(), Diag2part2.end());
-
-	if (thretInPath && kingInPath)return Diag2part1;
-
-
-	legalMoves.insert( Diag1part1.begin(), Diag1part1.end());
-	legalMoves.insert( Diag2part1.begin(), Diag2part1.end());
-
-	return legalMoves;
+	// Helper lambda to check vertical pinning.
+	auto isPinnedVertically = [&]() -> bool {
+		bool threatColPos = false, kingColPos = false;
+		std::set<Box*> colPos = colMovs(x, y, 1, &threatColPos, &kingColPos);
+		bool threatColNeg = false, kingColNeg = false;
+		std::set<Box*> colNeg = colMovs(x, y, -1, &threatColNeg, &kingColNeg);
+		// For a vertical pin, the enemy threat must be on one side and the king on the opposite side.
+		return (threatColPos && kingColNeg) || (threatColNeg && kingColPos);
+		};
+	std::set<Box*> bishopDiagonalMoves = combineDiag();
+	// If the bishop is pinned (horizontally or vertically), no diagonal move is legal.
+	if (isPinnedHorizontally() || isPinnedVertically())
+	{
+		// Return an empty set to prohibit any move.
+		return std::set<Box*>();
+	}
+	else
+	{
+		return bishopDiagonalMoves;
+	}
 
 }
+
 
 std::set<Box*> Bishop::PieceThreatMap(bool* checkmate)
 {
