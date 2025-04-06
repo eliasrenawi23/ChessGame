@@ -16,7 +16,7 @@ Knight::Knight(Box* loc, PlayerColor color)
 		surface = IMG_Load("texture/WN.svg");
 	}
 	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 }
 
 

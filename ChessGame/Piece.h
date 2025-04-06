@@ -2,7 +2,7 @@
 #include "Box.h"
 #include <vector>
 #include "PlayerColor.h"
-#include <SDL_image.h>
+//#include <SDL_image.h>
 #include <iostream>
 #include <set>
 

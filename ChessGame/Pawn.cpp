@@ -18,7 +18,7 @@ Pawn::Pawn(Box* loc, PlayerColor color) :PoosblieEnPassant(false)
 		surface = IMG_Load("texture/WP.svg");
 	}
 	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 
 }
 std::set<Box*>  Pawn::moveAndTake()

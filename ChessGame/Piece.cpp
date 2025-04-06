@@ -25,22 +25,24 @@ PlayerColor Piece::getColor()
 	return this->color;
 }
 
-void Piece::renderPiece()
-{
-	int w;
-	SDL_QueryTexture(texture, NULL, NULL, &w, &w);
-	SDL_Rect fromRect, toRect;
-	fromRect.w = w;
-	fromRect.h = w;
-	fromRect.x = fromRect.y = 0;
+void Piece::renderPiece() {
 
-	toRect.w = location->size;
-	toRect.h = location->size;
+	if (texture == nullptr) {
+		std::cout << "Texture not initialized!" << std::endl;
+		return;
+	}
+	float w, h;
+	if (SDL_GetTextureSize(texture, &w, &h) ==0) {
+		std::cout << "SDL_GetTextureSize failed: " << SDL_GetError() << std::endl;
+		return;
+	}
 
-	toRect.x = location->x;
-	toRect.y = location->y;
-	SDL_RenderCopy(Window::m_renderer, texture, &fromRect, &toRect);
+	SDL_FRect fromRect = { 0, 0,w, h };
+	SDL_FRect toRect = { location->x, location->y, location->size, location->size };
 
+	if (!SDL_RenderTexture(Window::m_renderer, texture, &fromRect, &toRect)) {
+		std::cout << "SDL_RenderTexture failed: " << SDL_GetError() << std::endl;
+	}
 }
 
 Piece::~Piece()

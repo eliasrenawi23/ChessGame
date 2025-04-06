@@ -30,7 +30,7 @@ void Box::resize(int x, int y, int size)
 }
 void Box::RenderBox()
 {
-	SDL_Rect highlightRect;
+	SDL_FRect highlightRect;
 	highlightRect.w = size;
 	highlightRect.h = size;
 	SDL_SetRenderDrawColor(Window::m_renderer,boxColor.r, boxColor.g,boxColor.b,boxColor.a);

@@ -18,7 +18,7 @@ Rook::Rook(Box* loc, PlayerColor color)
 		surface = IMG_Load("texture/WR.svg");
 	}
 	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_FreeSurface(surface);
+	SDL_DestroySurface(surface);
 }
 
 
