@@ -1,37 +1,24 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 #include "Window.h"
-#include <vector>
-
-
-
-using namespace std;
 
 int main(int argc, char* args[]) {
+    Window screen;
 
+    if (!screen.init()) {
+        std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+    else {
+        std::cout << "SDL initialized successfully." << std::endl;
+    }
 
+    bool running = true;
+    while (running) {
+        screen.updateRender();
+        running = screen.processEvents();
+    }
 
-
-	static Window screen;
-	if (screen.init() == false) {
-		cout << "Could not initialising SDL:  " << SDL_GetError() << "\n" << endl;
-	}
-	else {
-		cout << " initialising SDL is okey:  " << "\n" << endl;
-
-	}
-
-
-	while (true) {
-
-		screen.updateRender();
-		//check for messages/events
-		if (screen.processEvents() == false) {
-			break;
-		}
-	}
-	screen.close();
-	
-
-	return 1;
+    screen.close();
+    return 0;
 }

@@ -16,7 +16,7 @@
 	private:
 		SDL_Window* m_window;
 		SDL_Texture* m_texture;
-		Board *m_gamBoard;
+		Board *m_gameBoard;
 
 	public:
 		Window();

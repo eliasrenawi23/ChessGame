@@ -8,19 +8,19 @@ checkmate(false), En_passantPawn(NULL), promotion(false), promotionBox(NULL)
 {
 }
 void Board::init()
-{
-	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
-	BoxWidthandHigth /= rowBoxNmbersandCols;
+{	
+	gameboxess.clear();
+	BoxWidthandHigth = std::min(Window::SCREEN_HEIGHT, Window::SCREEN_WIDTH) / rowBoxNmbersandCols;//get the min between them
 
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
 		std::vector<Box> temp;
 		for (int j = 0; j < rowBoxNmbersandCols; j++)
 		{
-			temp.push_back({ i * BoxWidthandHigth,j * BoxWidthandHigth,BoxWidthandHigth ,(i + j) % 2 == 0 ? Color1 : Color2 });
+			temp.emplace_back(i * BoxWidthandHigth, j * BoxWidthandHigth, BoxWidthandHigth, (i + j) % 2 == 0 ? Color1 : Color2);
 
 		}
-		gameboxess.push_back(temp);
+		gameboxess.push_back(std::move(temp));
 
 	}
 	whitePlayer = new Player(PlayerColor::WHITE);
@@ -33,8 +33,8 @@ void Board::init()
 
 void Board::resize()
 {
-	BoxWidthandHigth = Window::SCREEN_HEIGHT < Window::SCREEN_WIDTH ? Window::SCREEN_HEIGHT : Window::SCREEN_WIDTH; //get the min between them
-	BoxWidthandHigth /= rowBoxNmbersandCols;
+	BoxWidthandHigth = std::min(Window::SCREEN_HEIGHT, Window::SCREEN_WIDTH) / rowBoxNmbersandCols;
+
 
 	for (int i = 0; i < rowBoxNmbersandCols; i++)
 	{
@@ -58,11 +58,10 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 	}
 	//std::cout << " box_x box_y MOUSE BUTTON Down : " << box_x << " " << box_y << std::endl;
 	selectedBox = &gameboxess[box_x][box_y]; //selected box that contain piece to play with
-	if (selectedBox->getPiece() == NULL) { //this vox has no pice in it no action needed
-		std::cout << " this vox has no pice in it no action needed " << std::endl;
+	if (!selectedBox->getPiece()|| promotion) { //this vox has no pice in it no action needed
+		std::cout << " this vox has no pice in it no action needed or it is promotion " << std::endl;
 		return;
 	}
-	if (promotion)return; //promotion is actev no need to do any thing hear
 
 	if (playerTurn && (selectedBox->getPiece()->getColor() == PlayerColor::WHITE)) {
 		//to do get the player move
@@ -100,7 +99,6 @@ void  Board::play(int cor_x, int cor_y) {
 		return;
 	}
 
-	std::set<Box*>::iterator itr;
 	Box* b = &gameboxess[box_x][box_y]; // the box to play to 
 	auto pos = boxtoLight.find(b);
 	if (pos != boxtoLight.end()) {
@@ -172,7 +170,7 @@ void Board::en_passasntDelete(int old_x, int old_y, int new_x, int new_y, int di
 void Board::CastleMove(int new_x, int new_y) {
 
 	Box* k = &gameboxess[new_x][new_y]; // the box to play to 
-	if (dynamic_cast<King*>(k->getPiece()) == nullptr)return;
+	if (!dynamic_cast<King*>(k->getPiece()))return;
 
 	int old_x = selectedBox->x / (Window::SQUARE_SIZE / 8);
 	int old_y = selectedBox->y / (Window::SQUARE_SIZE / 8);
@@ -190,7 +188,8 @@ void Board::CastleMove(int new_x, int new_y) {
 
 void Board::handle_promotion(int box_x, int box_y, bool* promotion)
 {
-	if ((box_y == 0 || box_y == 7) && *promotion == false && dynamic_cast<Pawn*>(gameboxess[box_x][box_y].getPiece())) {// initilaize promotions
+	Box* targetBox = &gameboxess[box_x][box_y];
+	if ((box_y == 0 || box_y == 7) && !*promotion && dynamic_cast<Pawn*>(targetBox->getPiece())) {// initilaize promotions
 		//prepare promotion
 		for (int i = 2; i < 6; i++) {   //save the old piesess
 			oldPieces.push_back(gameboxess[i][4].getPiece());
@@ -198,20 +197,20 @@ void Board::handle_promotion(int box_x, int box_y, bool* promotion)
 
 		}
 		//send to player class
-		playerTurn ? whitePlayer->handle_promotion(true) : blackPlayer->handle_promotion(true);
+		(playerTurn ? whitePlayer : blackPlayer)->handle_promotion(true);
 		*promotion = true;
-		promotionBox = &gameboxess[box_x][box_y];
+		promotionBox = targetBox;
 		playerTurn = !playerTurn; //we flip the turn twice to bak to current player
 
 	}
 	else if (*promotion)
 	{
 		Piece* p = selectedBox->getPiece();//what the player selected queen ? bishop rook?...
-		if (p == NULL)return;
+		if (!p)return;
 		int promotion_x = promotionBox->x / (Window::SQUARE_SIZE / 8);
 		int promotion_y = promotionBox->y / (Window::SQUARE_SIZE / 8);
 		deletepiece(promotionBox);
-		playerTurn ? whitePlayer->dopromotion(p, promotion_x, promotion_y) : blackPlayer->dopromotion(p, promotion_x, promotion_y);
+		(playerTurn ? whitePlayer : blackPlayer)->dopromotion(p, promotion_x, promotion_y);
 		*promotion = false;
 
 		//remove the list
@@ -232,7 +231,7 @@ void Board::UpdatePieceLocation(Box* from, Box* to)
 {
 	from->getPiece()->setLocation(to);   ///chenge the location of the piece
 	to->setPiece(from->getPiece());
-	from->setPiece(NULL);
+	from->setPiece(nullptr);
 }
 
 void Board::deletepiece(Box* b)
@@ -241,89 +240,49 @@ void Board::deletepiece(Box* b)
 	//Player* player = (playerTurn) ? blackPlayer : whitePlayer;
 	//p->~Piece();
 	delete p;
-	b->setPiece(NULL);
+	b->setPiece(nullptr);
 	blackPlayer->updateVectorPieces(p);
 	whitePlayer->updateVectorPieces(p);
 }
 
 void Board::highlightboxs(bool onOrOff) {
 
-	std::set<Box*>::iterator itr;
-	if (onOrOff) {
-		for (itr = boxtoLight.begin(); itr != boxtoLight.end(); itr++) {
-			(*itr)->boxColor = { 64,191, 255, SDL_ALPHA_OPAQUE };
-		}
-	}
-	else {
-		for (itr = boxtoLight.begin(); itr != boxtoLight.end(); itr++) {
-			(*itr)->boxColor = (*itr)->originalColor;
-		}
+	for (Box* b : boxtoLight) {
+		b->boxColor = onOrOff ? SDL_Color{ 64, 191, 255, SDL_ALPHA_OPAQUE } : b->originalColor;
 	}
 
 }
 void Board::RenderBoard()
 {
-	for (int i = 0; i < rowBoxNmbersandCols; i++)
-	{
-		for (int j = 0; j < rowBoxNmbersandCols; j++)
-		{
-			gameboxess[i][j].RenderBox();
+	for (auto& row : gameboxess) {
+		for (auto& box : row) {
+			box.RenderBox();
 		}
 	}
 	RenderPieces();
 }
 void Board::RenderPieces()
 {
-	std::vector<Piece*> BlackPieces = blackPlayer->getPieces();
-	for (int i = 0; i < BlackPieces.size(); i++)
-	{
-		BlackPieces[i]->renderPiece();
-
+	for (Piece* p : blackPlayer->getPieces()) {
+		if (p) p->renderPiece();
 	}
-	std::vector<Piece*> WhitePieces = whitePlayer->getPieces();
-	for (int i = 0; i < WhitePieces.size(); i++)
-	{
-		if (WhitePieces[i] != nullptr) {
 
-			WhitePieces[i]->renderPiece();
-		}
+	for (Piece* p : whitePlayer->getPieces()) {
+		if (p) p->renderPiece();
 	}
-	std::vector<Piece*> menu = playerTurn ? whitePlayer->getPiecesOptions() : blackPlayer->getPiecesOptions();
-
-	for (int i = 0; i < menu.size(); i++)
-	{
-		if (menu[i] != nullptr) {
-
-			menu[i]->renderPiece();
-		}
+	for (Piece* p : (playerTurn ? whitePlayer->getPiecesOptions() : blackPlayer->getPiecesOptions())) {
+		if (p) p->renderPiece();
 	}
 }
 
 
 void Board::checkresult()
 {
-	bool stlemnt = false;
-	bool gameover = false;
-	PlayerColor winner = PlayerColor::BLACK;
-	if (boxtoLight.size() == 1) {
-		if ((*boxtoLight.begin()) == selectedBox) {
-			//the game is stelment 
-			stlemnt = true;
-			std::cout << " this game is statement  no one wins  " << std::endl;
-		}
+	if (boxtoLight.size() == 1 && *boxtoLight.begin() == selectedBox) {
+		std::cout << "Stalemate: no one wins." << std::endl;
 	}
 	else if (boxtoLight.empty() && checkmate) {
-		if (playerTurn) {
-			//black win 
-			winner = PlayerColor::BLACK;
-			std::cout << " BLACK is winner " << std::endl;
-		}
-		else {
-			//white win
-			winner = PlayerColor::WHITE;
-			std::cout << " WHITE is winner " << std::endl;
-		}
-		gameover = true;
+		std::cout << (playerTurn ? "BLACK" : "WHITE") << " is the winner." << std::endl;
 	}
 
 

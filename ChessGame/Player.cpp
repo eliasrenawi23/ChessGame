@@ -28,22 +28,23 @@ std::set<Box*>  Player::play(Piece* const pieceToPlay, bool* checkmate)
 	if (dynamic_cast<King*>(pieceToPlay) != nullptr) {
 		std::cout << "player.cpp king must remove locations " << std::endl;
 		std::set<Box*>::iterator itr;
-		for (itr = opponentThreatMap.begin(); itr != opponentThreatMap.end(); itr++) {
-			legalmoves.erase((*itr));
+		for (const auto& itr : opponentThreatMap) {
+			legalmoves.erase(itr);
 		}
 	}
 
 	else if ((*checkmate)) {
-		//check if checkmate and erace the other moves form the king // and finale put check mate to false
+		// If it's checkmate, filter moves for the king based on cover paths
 		King* k = getKing();
-		if (k != NULL) {
-			std::set<Box*>kingcoverPath = k->getCoverPath();
-			std::set<Box*>endres;
-			std::set<Box*>endgame;
-			//need the intersection between two sets
-			std::set_intersection(legalmoves.begin(), legalmoves.end(), kingcoverPath.begin(), kingcoverPath.end(),
-				std::inserter(endres, endres.begin()));
-			return endres; //the piece we clicked can protect the king 
+		if (k != nullptr) {
+			std::set<Box*> kingCoverPath = k->getCoverPath();
+			std::set<Box*> validMoves;
+
+			// Need the intersection between the legal moves and king's cover path
+			std::set_intersection(legalmoves.begin(), legalmoves.end(), kingCoverPath.begin(), kingCoverPath.end(),
+				std::inserter(validMoves, validMoves.begin()));
+
+			return validMoves; // The piece can protect the king
 		}
 	}
 
@@ -83,12 +84,13 @@ void Player::init()
 	int PawnYPostion = (color == PlayerColor::BLACK) ? 1 : 6;
 	int restofPiecesYPostion = (color == PlayerColor::BLACK) ? 0 : 7;
 
-
+	// Initialize pawns
 	for (int x = 0; x < 8; x++) {
 		Pieces.push_back(new Pawn(&(Board::gameboxess[x][PawnYPostion]), color));
 		Board::gameboxess[x][PawnYPostion].setPiece(Pieces.back());
 	}
 
+	// Initialize other pieces (Bishops, Knights, Rooks, Queen, King)
 	Pieces.push_back(new Bishop(&(Board::gameboxess[2][restofPiecesYPostion]), color));    //Bishop1 ///box <---> piece point to each other 
 	Board::gameboxess[2][restofPiecesYPostion].setPiece(Pieces.back());
 	Pieces.push_back(new Bishop(&(Board::gameboxess[5][restofPiecesYPostion]), color)); //Bishop2
@@ -115,10 +117,11 @@ void Player::init()
 
 }
 
-void Player::handle_promotion(bool promotionmenu)
+void Player::handle_promotion(bool promotionMenu)
 {
 	//std::vector<Box*>PiecesOptions;
-	if (promotionmenu) {
+	 // Handle promotion menu display or cleanup
+	if (promotionMenu) {
 		PiecesOptions.push_back(new Queen(&(Board::gameboxess[2][4]), color));//Queen
 		Board::gameboxess[2][4].setPiece(PiecesOptions.back());
 
@@ -133,13 +136,9 @@ void Player::handle_promotion(bool promotionmenu)
 
 	}
 	else {
-		for (int i = 0; i < PiecesOptions.size(); i++)
-		{
-
-			delete PiecesOptions[i];
-			/*Board::gameboxess[i][4].getPiece()->~Piece();
-			delete Board::gameboxess[i][4].getPiece();
-			Board::gameboxess[i][4].setPiece(NULL);*/
+		// Clean up promotion options
+		for (Piece* piece : PiecesOptions) {
+			delete piece;
 		}
 		PiecesOptions.clear();
 	}
@@ -151,6 +150,8 @@ void Player::dopromotion(Piece* selsectedPiece, int cor_x, int cor_y)
 
 	//selsectedPiece Queen ? bishop rook?...
 	// int cor x cor y is to where to put it
+	// Perform the promotion by replacing the pawn with the selected piece
+
 	if (dynamic_cast<Queen*>(selsectedPiece)) {
 		Pieces.push_back(new Queen(&(Board::gameboxess[cor_x][cor_y]), color));    
 	}
@@ -178,9 +179,9 @@ std::vector<Piece*> Player::getPiecesOptions()
 Player::~Player()
 {
 
-	for (auto p : Pieces)
-	{
-		delete p;
+	// Clean up all dynamically allocated pieces
+	for (Piece* piece : Pieces) {
+		delete piece;
 	}
 	Pieces.clear();
 }
@@ -188,8 +189,9 @@ Player::~Player()
 King* Player::getKing()
 {
 
-	for (int i = 0; i < Pieces.size(); i++) {
-		if (King* k = dynamic_cast<King*>(Pieces[i])) {
+	// Find and return the player's king
+	for (Piece* piece : Pieces) {
+		if (King* k = dynamic_cast<King*>(piece)) {
 			return k;
 		}
 	}
