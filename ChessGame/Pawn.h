@@ -7,7 +7,7 @@ class Pawn :
 {
 
 public:
-    bool PoosblieEnPassant;
+    bool PossibleEnPassant;
 public:
     Pawn(Box *loc, PlayerColor color);
     std::set<Box*> moveAndTake() override;

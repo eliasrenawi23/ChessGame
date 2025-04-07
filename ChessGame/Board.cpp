@@ -142,8 +142,8 @@ void Board::En_passant(int new_x, int new_y) {
 
 		if (pawn->firstMove) {
 			if (En_passantPawn != NULL)
-				En_passantPawn->PoosblieEnPassant = false;
-			pawn->PoosblieEnPassant = true;
+				En_passantPawn->PossibleEnPassant = false;
+			pawn->PossibleEnPassant = true;
 			En_passantPawn = pawn;
 			return;
 		}
@@ -152,7 +152,7 @@ void Board::En_passant(int new_x, int new_y) {
 
 		en_passasntDelete(old_x - 1, old_y, new_x, new_y, diraction);
 		en_passasntDelete(old_x + 1, old_y, new_x, new_y, diraction);
-		En_passantPawn->PoosblieEnPassant = false;
+		En_passantPawn->PossibleEnPassant = false;
 
 	}
 
@@ -162,7 +162,7 @@ void Board::en_passasntDelete(int old_x, int old_y, int new_x, int new_y, int di
 	if (old_x >= 0 && old_x < rowBoxNmbersandCols) {
 		Box* b = &gameboxess[old_x][old_y]; //left box
 		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
-			if (pawn->PoosblieEnPassant && (old_x == new_x && new_y == old_y - diraction)) {
+			if (pawn->PossibleEnPassant && (old_x == new_x && new_y == old_y - diraction)) {
 				pawn->~Pawn();
 				deletepiece(b);
 				return;
