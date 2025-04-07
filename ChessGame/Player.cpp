@@ -26,7 +26,7 @@ std::set<Box*>  Player::play(Piece* const pieceToPlay, bool* checkmate)
 	int s = Board::BoxWidthandHigth;
 
 	if (dynamic_cast<King*>(pieceToPlay) != nullptr) {
-		std::cout << "player.cpp king must remove locations " << std::endl;
+		//std::cout << "player.cpp king must remove locations " << std::endl;
 		std::set<Box*>::iterator itr;
 		for (const auto& itr : opponentThreatMap) {
 			legalmoves.erase(itr);
