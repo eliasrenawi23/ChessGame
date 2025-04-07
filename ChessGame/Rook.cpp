@@ -9,75 +9,53 @@ Rook::Rook(Box* loc, PlayerColor color)
 	this->x = (location->x) / Board::BoxWidthandHigth;
 	this->y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
-	SDL_Surface* surface;
 
-	if (color == PlayerColor::BLACK) {
-		surface = IMG_Load("texture/BR.svg");
-	}
-	else {
-		surface = IMG_Load("texture/WR.svg");
-	}
+
+	SDL_Surface* surface = IMG_Load((color == PlayerColor::BLACK) ? "texture/BR.svg" : "texture/WR.svg");
 	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
 	SDL_DestroySurface(surface);
-}
-
-
-std::set<Box*>  Rook::moveAndTake()
-{
-	std::cout << "Bishop clicked" << std::endl;
-
-	bool thretInPath = false, kingInPath = false;//to check if the pice is pinned
-	std::set<Box*>  legalMoves;
-	std::set<Box*>  rowPart1;
-	std::set<Box*>  rowPart2;
-
-	rowPart1 = rowMovs(x, y, 1, &thretInPath, &kingInPath);
-	rowPart2 = rowMovs(x, y, -1, &thretInPath, &kingInPath);
-
-	rowPart1.insert(rowPart2.begin(), rowPart2.end());
-	if (thretInPath && kingInPath)return rowPart1;
-	thretInPath = false; 
-	kingInPath = false;
-	std::set<Box*>  colPart1;
-	std::set<Box*>  colPart2;
-
-	colPart1 = colMovs(x, y, 1, &thretInPath, &kingInPath);
-	colPart2 = colMovs(x, y, -1, &thretInPath, &kingInPath);
-	colPart1.insert(colPart2.begin(), colPart2.end());
-	if (thretInPath && kingInPath)return colPart1;
-
-
-
-	legalMoves.insert( rowPart1.begin(), rowPart1.end());
-	legalMoves.insert( colPart1.begin(), colPart1.end());
-	return legalMoves;
-
-}
-
-std::set<Box*> Rook::PieceThreatMap(bool* checkmate)
-{
 	
-	std::set<Box*>  legalMoves;
-	std::set<Box*>  rowPart1;
-	std::set<Box*>  rowPart2;
+}
 
-	rowPart1 = rowThreatMap(x, y, 1, checkmate);
-	rowPart2 = rowThreatMap(x, y, -1, checkmate);
 
-	rowPart1.insert(rowPart2.begin(), rowPart2.end());
-	// if pinned return rowPart1
+std::set<Box*> Rook::moveAndTake() {
+	std::cout << "Rook clicked" << std::endl;
 
-	std::set<Box*>  colPart1;
-	std::set<Box*>  colPart2;
+	bool threatInPath = false, kingInPath = false;
+	std::set<Box*> legalMoves;
 
-	colPart1 = colThreatMap(x, y, 1, checkmate);
-	colPart2 = colThreatMap(x, y, -1, checkmate);
-	colPart1.insert(colPart2.begin(), colPart2.end());
+	std::set<Box*> row1 = rowMovs(x, y, 1, &threatInPath, &kingInPath);
+	std::set<Box*> row2 = rowMovs(x, y, -1, &threatInPath, &kingInPath);
+	row1.insert(row2.begin(), row2.end());
+	if (threatInPath && kingInPath) return row1;
 
-	// if pinned return colPart1
+	threatInPath = kingInPath = false;
+	std::set<Box*> col1 = colMovs(x, y, 1, &threatInPath, &kingInPath);
+	std::set<Box*> col2 = colMovs(x, y, -1, &threatInPath, &kingInPath);
+	col1.insert(col2.begin(), col2.end());
+	if (threatInPath && kingInPath) return col1;
 
-	legalMoves.insert(rowPart1.begin(), rowPart1.end());
-	legalMoves.insert(colPart1.begin(), colPart1.end());
+	legalMoves.insert(row1.begin(), row1.end());
+	legalMoves.insert(col1.begin(), col1.end());
+
+	return checkpinned(legalMoves);
+}
+
+
+std::set<Box*> Rook::PieceThreatMap(bool* checkmate) {
+	std::set<Box*> legalMoves;
+
+	std::set<Box*> row1 = rowThreatMap(x, y, 1, checkmate);
+	std::set<Box*> row2 = rowThreatMap(x, y, -1, checkmate);
+	row1.insert(row2.begin(), row2.end());
+
+	std::set<Box*> col1 = colThreatMap(x, y, 1, checkmate);
+	std::set<Box*> col2 = colThreatMap(x, y, -1, checkmate);
+	col1.insert(col2.begin(), col2.end());
+
+	legalMoves.insert(row1.begin(), row1.end());
+	legalMoves.insert(col1.begin(), col1.end());
+
 	return legalMoves;
 }
 
