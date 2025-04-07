@@ -223,7 +223,7 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves) {
 		std::set<Box*> rowPos = rowMovs(x, y, 1, &threatPos, &kingPos);
 		bool threatNeg = false, kingNeg = false;
 		std::set<Box*> rowNeg = rowMovs(x, y, -1, &threatNeg, &kingNeg);
-		if ((threatPos && kingPos) || (threatNeg && kingNeg)) {
+		if ((threatNeg && kingPos) || (threatPos && kingNeg)) {
 			std::set<Box*> rowCombined = rowPos;
 			rowCombined.insert(rowNeg.begin(), rowNeg.end());
 			std::set_intersection(legalMoves.begin(), legalMoves.end(),
@@ -240,7 +240,7 @@ std::set<Box*> Piece::checkpinned(std::set<Box*> legalMoves) {
 		std::set<Box*> colPos = colMovs(x, y, 1, &threatPos, &kingPos);
 		bool threatNeg = false, kingNeg = false;
 		std::set<Box*> colNeg = colMovs(x, y, -1, &threatNeg, &kingNeg);
-		if ((threatPos && kingPos) || (threatNeg && kingNeg)) {
+		if ((threatNeg && kingPos) || (threatNeg && kingNeg)) {
 			std::set<Box*> colCombined = colPos;
 			colCombined.insert(colNeg.begin(), colNeg.end());
 			std::set_intersection(legalMoves.begin(), legalMoves.end(),
