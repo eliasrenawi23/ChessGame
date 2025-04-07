@@ -7,6 +7,10 @@ Board::Board() : whitePlayer(NULL), blackPlayer(NULL), playerTurn(true), selecte
 checkmate(false), En_passantPawn(NULL), promotion(false), promotionBox(NULL)
 {
 }
+bool Board::isInBounds(int x, int y)
+{
+	 return x >= 0 && y >= 0 && x < rowBoxNmbersandCols && y < rowBoxNmbersandCols;;
+}
 void Board::init()
 {	
 	gameboxess.clear();

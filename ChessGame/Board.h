@@ -29,6 +29,7 @@ private:
 	Pawn* En_passantPawn;
 public:
 	Board();
+	static bool isInBounds(int x, int y);
 	void getLegalMovs(int cor_x, int cor_y);
 	void play(int cor_x, int cor_y);
 	void RenderBoard();//torendr all of the boxes 
