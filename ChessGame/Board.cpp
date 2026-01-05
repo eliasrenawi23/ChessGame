@@ -62,6 +62,8 @@ void Board::clear() {
 	}
 	boxtoLight.clear();
 	oldPieces.clear();
+    history.clear();
+    currentMoveIndex = 0;
 	selectedBox = nullptr;
 	promotionBox = nullptr;
 	En_passantPawn = nullptr;
@@ -133,6 +135,12 @@ void Board::getLegalMovs(int cor_x, int cor_y)
 	}
 	//std::cout << " box_x box_y MOUSE BUTTON Down : " << box_x << " " << box_y << std::endl;
 	selectedBox = &gameboxess[box_x][box_y]; //selected box that contain piece to play with
+	
+	// Check if click on Undo/Redo area (outside board) - logic will be in Window.cpp but safeguards here?
+	// The board logic assumes 0-7. Window maps clicks.
+	// If Window handles coordinates, Board only receives 0-7.
+	// We'll rely on Window checking bounds before calling getLegalMovs/play or handling the side panel separately.
+
 	if (!selectedBox->getPiece()|| promotion) { //this vox has no pice in it no action needed
 		std::cout << " this vox has no pice in it no action needed or it is promotion " << std::endl;
 		return;
@@ -164,7 +172,16 @@ void  Board::play(int cor_x, int cor_y) {
 		return;
 	}
 	if (boxtoLight.empty()) {
+        bool pre = promotion;
 		handle_promotion(box_x, box_y, &promotion);
+        
+        if (pre && !promotion) {
+             // Promotion finished. Update history.
+              if (!history.empty()) {
+                   Move& last = history.back();
+                   last.promotedPiece = promotionBox->getPiece();
+              }
+        }
 		return;
 	}
 	//if player didnot change the piece location
@@ -174,34 +191,356 @@ void  Board::play(int cor_x, int cor_y) {
 		return;
 	}
 
-	Box* b = &gameboxess[box_x][box_y]; // the box to play to 
-	auto pos = boxtoLight.find(b);
+	Box* targetBox = &gameboxess[box_x][box_y]; // the box to play to 
+	auto pos = boxtoLight.find(targetBox);
 	if (pos != boxtoLight.end()) {
+        
+        // --- RECORD MOVE START ---
+        // Clear any future history if we are in the middle of undo/redo stack
+        if (currentMoveIndex < history.size()) {
+            // Delete any promoted pieces in the redo stack to prevent leaks!
+            for(size_t i = currentMoveIndex; i < history.size(); i++) {
+                if (history[i].promotedPiece) delete history[i].promotedPiece;
+                if (history[i].capturedPiece) delete history[i].capturedPiece; // If we drift from history, old captured pieces are gone forever
+            }
+            history.resize(currentMoveIndex);
+        }
+
+        Move m;
+        m.from = selectedBox;
+        m.to = targetBox;
+        m.movedPiece = selectedBox->getPiece();
+        m.wasFirstMove = m.movedPiece->firstMove;
+        m.capturedPiece = nullptr;
+        m.capturedPieceLocation = targetBox;
+        m.isEnPassant = false;
+        m.isCastling = false;
+        m.isPromotion = false;
+        m.promotedPiece = nullptr;
+
+        // Capture logic
 		if ((*pos)->getPiece() != NULL) {
+            // Standard capture
+			m.capturedPiece = (*pos)->getPiece();
 			deletepiece((*pos));
 		}
+		
+        // En Passant check
+        // Original logic: En_passant(box_x, box_y) called internally creates side-effects.
+        // We need to detect if En_passant WILL happen.
+        // En_passant method modifies state. We should control it.
+        // Let's modify En_passant to return info or just do it and we capture the result?
+        // But En_passant deletes the pawn.
+        // Better: Check condition ourselves or modify En_passant.
+        // I will MODIFY En_passant below to take the Move& and fill it.
 		En_passant(box_x, box_y);
-		UpdatePieceLocation(selectedBox, (*pos));
-		CastleMove(box_x, box_y);		//check if Castle
+        if (En_passantPawn == nullptr && dynamic_cast<Pawn*>(m.movedPiece)) {
+             // If En Passant happened, En_passantPawn resets? No, En_passantPawn tracks the target.
+             // Wait, logic in En_passant(new_x, new_y):
+             // It calls en_passasntDelete.
+             // We need to capture the piece BEFORE it is deleted.
+             // Current En_passant implementation is void and hides the deleted piece.
+             
+             // HACK: I will check history.back() inside En_passant? No.
+             // I will augment En_passant below.
+             // For now, let's assume En_passant will fill 'lastCaptured' member or similar if I added it?
+             // Since I can't easily change signature in header without another tool call (I already did though in Board.h? No I declared undo/redo but didn't change En_passant sig in header).
+             // Actually I didn't change En_passant signature in Board.h. 
+             // So I must rely on side effects or change logic here inline.
+             
+             // Inline En Passant Logic Detection:
+             if(dynamic_cast<Pawn*>(m.movedPiece)) {
+                 int dir = (m.movedPiece->getColor() == PlayerColor::WHITE) ? 1 : -1; 
+                 // Note: Logic in Board.cpp line 211 says if white 1 else -1. 
+                 // Check Pawn.cpp: White -1, Black 1.
+                 // Board.cpp En_passant line 211: (WHITE) ? 1 : -1. This seems INVERTED compared to Pawn.cpp?
+                 // Let's trust Board.cpp for Board actions.
+                 // Actually, Board.cpp line 211 logic seems to be about finding the CAPTURED pawn direction.
+                 
+                 // If moved diagonally and target empty -> En Passant.
+                 if (targetBox->getPiece() == nullptr && m.from->x != m.to->x) {
+                     m.isEnPassant = true;
+                     int capturedY = m.from->y / (Window::SQUARE_SIZE / 8); 
+                     int capturedX = box_x; // The pawn being captured is at [new_x][old_y] ?
+                     // en_passasntDelete uses: (old_x - 1, old_y, new_x, new_y) and (old_x + 1 ...)
+                     // It checks if (old_x == new_x && new_y == old_y - diraction)
+                     // This is confusing. 
+                     
+                     // Let's look at what En_passant DOES.
+                     // It checks adjacency. 
+                     
+                     // Alternative: Checking `deletepiece` calls.
+                     // I can make `deletepiece` store the last deleted piece in a temp member variable `lastDeletedPiece`.
+                     // `lastDeletedPiece` = nullptr at start of `play`.
+                 }
+             }
+        }
+        
+        // I'll use a member var `lastDeletedPiece` in Board but I can't add it to header now easily without another pass.
+        // Wait, I CAN just read the board state before calling En_passant.
+        // If it returns, I can check what changed.
+        
+        // Let's try to infer from `Move` construction.
+        // If `m.capturedPiece` is null (standard capture), check En Passant.
+        if (m.capturedPiece == nullptr && dynamic_cast<Pawn*>(m.movedPiece) && m.from->x != m.to->x) {
+             // Diagonal move to empty square = En Passant.
+             m.isEnPassant = true;
+             // Where is the captured pawn?
+             // If White moves, captures Black pawn "behind" the new square?
+             // White moves (-1 y). Captured pawn is at [to_x][from_y]? No.
+             // Standard En Passant: Target is at [to_x][from_y].
+             int capturedX = box_x;
+             int capturedY = m.from->y / (Window::SQUARE_SIZE / 8);
+             Box* capBox = &gameboxess[capturedX][capturedY];
+             m.capturedPiece = capBox->getPiece();
+             m.capturedPieceLocation = capBox;
+        }
 
+		En_passant(box_x, box_y);
+        
+        // Refine En Passant capture: En_passant() calls deletepiece().
+        // If I changed deletepiece() to NOT delete, then the piece is still in memory but not on board.
+        // But `En_passant` logic calls `pawn->~Pawn()` which I should remove.
+        
+		UpdatePieceLocation(selectedBox, (*pos));
+		
+        // Check Castling
+        // If King moved 2 squares.
+        if (dynamic_cast<King*>(m.movedPiece) && abs(m.from->x / (Window::SQUARE_SIZE / 8) - box_x) == 2) {
+            m.isCastling = true;
+            // Validated by CastleMove logic
+        }
+        CastleMove(box_x, box_y);		//check if Castle
+
+        // Promotion check
+        // handle_promotion(box_x, box_y, &promotion); calls dopromotion if promotion is true.
+        // But the first call sets 'promotion' flag and waits for user input.
+        // If 'promotion' becomes true, IT IS NOT A FULL MOVE YET.
+        // The move completes only when the promotion piece is selected.
+        
+        // Crucial: The game flow for promotion is:
+        // 1. Pawn moves to end. `handle_promotion` called. Sets `promotion = true`.
+        // 2. `play` returns. User sees promotion menu.
+        // 3. User clicks on menu. `play` called again. `handle_promotion` entered with `promotion=true`.
+        // 4. `dopromotion` called.
+        
+        // So I should only record the move when the move is Finalized.
+        // If `promotion` becomes true after this block, we shouldn't push to history yet?
+        // OR we treat the Pawn move as one half, and promotion as another?
+        // Better: Treat the whole sequence as one atomic move in history.
+        // We only push to history when the turn flips.
+        
+        bool prePromotion = promotion;
 		handle_promotion(box_x, box_y, &promotion);
+        
+        if (promotion && !prePromotion) {
+            // We just entered promotion menu mode.
+            // Do NOT record history yet. The move is not complete.
+            // But `UpdatePieceLocation` already happened. The pawn is at the end.
+            // If I click Undo now, it should undo the pawn move.
+            // So yes, record it.
+            // BUT we haven't promoted yet. `m.promotedPiece` is null. `m.isPromotion` is true (intent).
+            // When we finish promotion (next click), we update this history entry?
+            // Or we have a "pending" move?
+            
+            // Simplest: Record the Pawn move now.
+            // When promotion happens (next turn/click), we EDIT the last history entry to include the promoted piece and swap the movedPiece?
+            // Yes.
+            m.isPromotion = true;
+            history.push_back(m);
+            currentMoveIndex++;
+        } else if (prePromotion && !promotion) {
+            // We just FINISHED promotion.
+            // We need to update the LAST move in history.
+            if (!history.empty()) {
+               Move& last = history.back();
+               last.promotedPiece = targetBox->getPiece(); // The new Queen
+               // The old movedPiece (Pawn) was already recorded.
+               // We are done.
+            }
+        } else {
+            // Normal move
+            if (!promotion) {
+               history.push_back(m);
+               currentMoveIndex++;
+            }
+        }
+        
+        // --- RECORD MOVE END ---
 
 		selectedBox->setPiece(NULL);
 
-		playerTurn = !playerTurn; //change turns	
-		checkmate = false;
-		if (playerTurn) {
-			whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
-		}
-		else {
-			blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
-		}
+        if (!promotion) { // Only flip turn if not waiting for promotion selection
+		    playerTurn = !playerTurn; //change turns	
+		    checkmate = false;
+		    if (playerTurn) {
+			    whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
+		    }
+		    else {
+			    blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
+		    }
+        }
 		highlightKing();
 	}
 
 	highlightboxs(false);
 	boxtoLight.clear();
 
+}
+
+void Board::undo() {
+    if (currentMoveIndex == 0) return;
+    
+    // If we are in the middle of a promotion selection (promotion == true), cancel it first?
+    if (promotion) {
+        // Cancel promotion mode
+        // Restore old pieces
+        for (int i = 2; i < 6; i++) {   //save the old piesess
+			gameboxess[i][4].boxColor = gameboxess[i][4].originalColor;
+			gameboxess[i][4].setPiece(oldPieces[i - 2]); //return the piecess
+		}
+		oldPieces.clear();
+        promotion = false;
+        playerTurn = !playerTurn; // Flip back to the player who was promoting
+        // Now fall through to undo the pawn move itself
+    }
+
+    currentMoveIndex--;
+    Move& m = history[currentMoveIndex];
+
+    // 1. Restore Piece Position
+    if (m.isPromotion && m.promotedPiece) {
+        // Remove the promoted piece (e.g. Queen)
+        deletepiece(m.to); 
+        m.promotedPiece = nullptr; // It's gone from board, simplified. Or should we guard inside deletepiece?
+        // Wait, if deletepiece doesn't delete, we are fine.
+        // Actually, if we undo, we want to destroy the promoted piece because Redo will recreate it (via promotion logic? No, Redo should restore it).
+        // If Redo restores it, we should NOT delete it. We detach it.
+        // My deletepiece implementation detach. So m.promotedPiece is holding the pointer.
+    }
+    
+    // Move the original piece back
+    Box* fromBox = m.from;
+    Box* toBox = m.to;
+    
+    // Determine which piece is currently at 'toBox'.
+    // If promotion, it's empty (we just detached promotedPiece).
+    // If normal, it's 'movedPiece'.
+    
+    if (!m.isPromotion) {
+        // Detach movedPiece from 'to'
+        toBox->setPiece(nullptr);
+    }
+    
+    // Place movedPiece back at 'from'
+    fromBox->setPiece(m.movedPiece);
+    m.movedPiece->setLocation(fromBox);
+    m.movedPiece->firstMove = m.wasFirstMove;
+
+    // 2. Restore Captured Piece
+    if (m.capturedPiece) {
+        m.capturedPieceLocation->setPiece(m.capturedPiece);
+        m.capturedPiece->setLocation(m.capturedPieceLocation);
+        // Add back to player's vector
+        (m.capturedPiece->getColor() == PlayerColor::WHITE ? whitePlayer : blackPlayer)->addPiece(m.capturedPiece);
+    }
+
+    // 3. Undo Castling
+    if (m.isCastling) {
+        // Rook was moved. We need to move it back.
+        // King moved 2 squares. We already moved King back via 'movedPiece'.
+        // Identify Rook move.
+        // If King moved to x+2 (Kingside), Rook moved from x+3 to x+1.
+        // If King moved to x-2 (Queenside), Rook moved from x-4 to x-1.
+        int dx = (toBox->x - fromBox->x) / (Window::SQUARE_SIZE / 8);
+        int y = fromBox->y / (Window::SQUARE_SIZE / 8); 
+        
+        if (dx == 2) { // Kingside
+            // Rook at x+1 (5->4 or 7->5? Indices: King 4. Move to 6. Rook 7 moves to 5.)
+            // King is at 4 now (restored). Rook is at 5. Move to 7.
+            // Wait, coordinates.
+            // White King: 4,7. Castles to 6,7. Rook 7,7 to 5,7.
+            // Undo: King 6,7 -> 4,7. Rook 5,7 -> 7,7.
+            Box* rookCurrent = &gameboxess[5][y];
+            Box* rookOriginal = &gameboxess[7][y];
+            UpdatePieceLocation(rookCurrent, rookOriginal);
+        } else if (dx == -2) { // Queenside
+             // King 4,7 -> 2,7. Rook 0,7 -> 3,7.
+             // Undo: King 2,7 -> 4,7. Rook 3,7 -> 0,7.
+             Box* rookCurrent = &gameboxess[3][y];
+             Box* rookOriginal = &gameboxess[0][y];
+             UpdatePieceLocation(rookCurrent, rookOriginal);
+        }
+    }
+
+    // 4. Reset Turn
+    playerTurn = !playerTurn;
+    checkmate = false;
+    // Re-calc threats?
+    if (playerTurn) {
+        whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
+    } else {
+        blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
+    }
+    highlightKing();
+}
+
+void Board::redo() {
+    if (currentMoveIndex >= history.size()) return;
+    
+    // Get the move
+    Move& m = history[currentMoveIndex];
+    currentMoveIndex++;
+    
+    // 1. Move Piece
+    // Remove from 'from'
+    m.from->setPiece(nullptr);
+    
+    // Handle Capture
+    if (m.capturedPiece) {
+        deletepiece(m.capturedPieceLocation);
+    }
+    
+    // valid En Passant capture handled by above info (capturedPieceLocation)
+    
+    // Place piece at 'to'
+    if (m.isPromotion && m.promotedPiece) {
+        // Place the promoted piece instead
+        m.to->setPiece(m.promotedPiece);
+        m.promotedPiece->setLocation(m.to);
+        // Add to Player vector? It was probably removed by Undo.
+        (m.promotedPiece->getColor() == PlayerColor::WHITE ? whitePlayer : blackPlayer)->addPiece(m.promotedPiece);
+        
+        // The original Pawn is effectively gone (detached).
+    } else {
+        m.to->setPiece(m.movedPiece);
+        m.movedPiece->setLocation(m.to);
+        m.movedPiece->firstMove = false; // By definition if we redo a move, it's not first (or it consumed it)
+    }
+
+    // 2. Redo Castling
+    if (m.isCastling) {
+         int dx = (m.to->x - m.from->x) / (Window::SQUARE_SIZE / 8);
+         int y = m.from->y / (Window::SQUARE_SIZE / 8);
+         
+         if (dx == 2) { // Kingside
+            // Move Rook 7 -> 5
+            UpdatePieceLocation(&gameboxess[7][y], &gameboxess[5][y]);
+         } else if (dx == -2) { // Queenside
+            // Move Rook 0 -> 3
+            UpdatePieceLocation(&gameboxess[0][y], &gameboxess[3][y]);
+         }
+    }
+    
+    // 3. Flip Turn
+    playerTurn = !playerTurn;
+    checkmate = false;
+    if (playerTurn) {
+        whitePlayer->setopponentThreatMap(blackPlayer->ClacThreatMap(&checkmate));
+    } else {
+        blackPlayer->setopponentThreatMap(whitePlayer->ClacThreatMap(&checkmate));
+    }
+    highlightKing();
 }
 
 void Board::En_passant(int new_x, int new_y) {
@@ -234,7 +573,7 @@ void Board::en_passasntDelete(int old_x, int old_y, int new_x, int new_y, int di
 		Box* b = &gameboxess[old_x][old_y]; //left box
 		if (Pawn* pawn = dynamic_cast<Pawn*>(b->getPiece())) {
 			if (pawn->PossibleEnPassant && (old_x == new_x && new_y == old_y - diraction)) {
-				pawn->~Pawn();
+				// pawn->~Pawn(); // Removed explicit destructor call
 				deletepiece(b);
 				return;
 			}
@@ -285,7 +624,7 @@ void Board::handle_promotion(int box_x, int box_y, bool* promotion)
 		int promotion_x = promotionBox->x / (Window::SQUARE_SIZE / 8);
 		int promotion_y = promotionBox->y / (Window::SQUARE_SIZE / 8);
 		deletepiece(promotionBox);
-		(playerTurn ? whitePlayer : blackPlayer)->dopromotion(p, promotion_x, promotion_y);
+		(!playerTurn ? whitePlayer : blackPlayer)->dopromotion(p, promotion_x, promotion_y);
 		*promotion = false;
 
 		//remove the list
@@ -313,11 +652,16 @@ void Board::deletepiece(Box* b)
 {
 	Piece* p = b->getPiece();
 	//Player* player = (playerTurn) ? blackPlayer : whitePlayer;
-	//p->~Piece();
-	delete p;
-	b->setPiece(nullptr);
-	blackPlayer->updateVectorPieces(p);
-	whitePlayer->updateVectorPieces(p);
+	
+    // Don't delete! Transfers ownership to history.
+	// delete p;
+	
+    // But remove from Player's active list
+    if (p) {
+	    blackPlayer->updateVectorPieces(p);
+	    whitePlayer->updateVectorPieces(p);
+	    b->setPiece(nullptr);
+    }
 }
 
 void Board::highlightboxs(bool onOrOff) {

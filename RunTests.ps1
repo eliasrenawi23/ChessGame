@@ -19,7 +19,7 @@ $env:PATH = "$PWD\x64\Debug;" + $env:PATH
 # Note: *.cpp includes TestFEN.cpp automatically.
 Write-Host "Compiling and Linking Tests..."
 # Note: Linking against debug libs
-$cmd = "cl.exe /std:c++17 /EHsc /MDd /I`"$INCLUDE_PATH`" /I`"ChessGame`" $sources $testSources /Fe`"$exePath`" /link /LIBPATH:`"$LIB_PATH_DEBUG`" /LIBPATH:`"$LIB_PATH_DEBUG\manual-link`" /LIBPATH:`"$LIB_PATH`" gtest.lib gtest_main.lib sdl3.lib sdl3_image.lib shell32.lib"
+$cmd = "cl.exe /std:c++17 /EHsc /MDd /I`"$INCLUDE_PATH`" /I`"ChessGame`" $sources $testSources /Fe`"$exePath`" /link /LIBPATH:`"$LIB_PATH_DEBUG`" /LIBPATH:`"$LIB_PATH_DEBUG\manual-link`" /LIBPATH:`"$LIB_PATH`" gtest.lib gtest_main.lib sdl3.lib sdl3_image.lib sdl3_ttf.lib shell32.lib"
 
 cmd /c $cmd
 
