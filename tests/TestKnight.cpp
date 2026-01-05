@@ -105,3 +105,55 @@ TEST_F(KnightTest, CaptureAndBlock) {
     EXPECT_FALSE(canMoveToFriend);
     EXPECT_TRUE(canCaptureEnemy);
 }
+
+TEST_F(KnightTest, EdgeOfBoard) {
+    // Knight at b1 (1,7) - should have 3 moves: a3, c3, d2
+    board.loadFEN("8/8/8/8/8/8/8/1N6 w - - 0 1");
+    Piece* p = Board::gameboxess[1][7].getPiece();
+    Knight* knight = dynamic_cast<Knight*>(p);
+    
+    std::set<Box*> moves = knight->moveAndTake();
+    EXPECT_EQ(moves.size(), 3);
+}
+
+TEST_F(KnightTest, NearCornerG1) {
+    // Knight at g1 (6,7) - should have 3 moves
+    board.loadFEN("8/8/8/8/8/8/8/6N1 w - - 0 1");
+    Piece* p = Board::gameboxess[6][7].getPiece();
+    Knight* knight = dynamic_cast<Knight*>(p);
+    
+    EXPECT_EQ(knight->moveAndTake().size(), 3);
+}
+
+TEST_F(KnightTest, SurroundedByFriends) {
+    // Knight at d4 with all 8 target squares occupied by friendly pawns
+    board.loadFEN("8/8/2P1P3/1P3P2/3N4/1P3P2/2P1P3/8 w - - 0 1");
+    Piece* p = Board::gameboxess[3][4].getPiece();
+    Knight* knight = dynamic_cast<Knight*>(p);
+    
+    // Should have 0 legal moves - all blocked by friends
+    EXPECT_EQ(knight->moveAndTake().size(), 0);
+}
+
+TEST_F(KnightTest, AllCapturesAvailable) {
+    // Knight at d4 with all 8 target squares occupied by enemy pawns
+    board.loadFEN("8/8/2p1p3/1p3p2/3N4/1p3p2/2p1p3/8 w - - 0 1");
+    Piece* p = Board::gameboxess[3][4].getPiece();
+    Knight* knight = dynamic_cast<Knight*>(p);
+    
+    // Should have 8 legal moves - all captures
+    EXPECT_EQ(knight->moveAndTake().size(), 8);
+}
+
+TEST_F(KnightTest, MixedFriendAndEnemy) {
+    // Knight at d4 with mixed friendly and enemy pieces on target squares
+    // Friends at b3, c2, e2, f3 - Enemies at b5, c6, e6, f5
+    board.loadFEN("8/8/2p1p3/1p3p2/3N4/1P3P2/2P1P3/8 w - - 0 1");
+    Piece* p = Board::gameboxess[3][4].getPiece();
+    Knight* knight = dynamic_cast<Knight*>(p);
+    
+    std::set<Box*> moves = knight->moveAndTake();
+    // Can capture 4 enemies, blocked by 4 friends
+    EXPECT_EQ(moves.size(), 4);
+}
+

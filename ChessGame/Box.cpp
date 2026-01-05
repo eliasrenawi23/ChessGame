@@ -26,10 +26,10 @@ void Box::resize(int x, int y, int size) {
 
 void Box::RenderBox() {
     SDL_FRect highlightRect;
-    highlightRect.w = size; // Set width
-    highlightRect.h = size; // Set height
-    highlightRect.x = x; // Set x position
-    highlightRect.y = y; // Set y position
+    highlightRect.w = static_cast<float>(size); // Set width
+    highlightRect.h = static_cast<float>(size); // Set height
+    highlightRect.x = static_cast<float>(x); // Set x position
+    highlightRect.y = static_cast<float>(y); // Set y position
 
     // Set render color for the box
     SDL_SetRenderDrawColor(Window::m_renderer, boxColor.r, boxColor.g, boxColor.b, boxColor.a);

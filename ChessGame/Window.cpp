@@ -15,7 +15,7 @@ bool Window::init() {
 
 	SDL_Log("SDL_Init started");
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
 		SDL_Log("SDL_Init failed: %s", SDL_GetError());
 		return false;
 	}
@@ -65,11 +65,11 @@ bool Window::processEvents() {
 
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN://mouse pressed
-			m_gameBoard->getLegalMovs(event.motion.x, event.motion.y);
+			m_gameBoard->getLegalMovs(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
 
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_UP: //mouse relesde
-			m_gameBoard->play(event.motion.x, event.motion.y);
+			m_gameBoard->play(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
 			break;
 		default :
 			break;

@@ -36,7 +36,7 @@ void Piece::renderPiece() const {
 	}
 
 	SDL_FRect fromRect = { 0, 0,w, h };
-	SDL_FRect toRect = { location->x, location->y, location->size, location->size };
+	SDL_FRect toRect = { static_cast<float>(location->x), static_cast<float>(location->y), static_cast<float>(location->size), static_cast<float>(location->size) };
 
 	if (!SDL_RenderTexture(Window::m_renderer, texture, &fromRect, &toRect)) {
 		std::cout << "SDL_RenderTexture failed: " << SDL_GetError() << std::endl;
