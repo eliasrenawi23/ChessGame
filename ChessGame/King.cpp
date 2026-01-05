@@ -26,7 +26,7 @@ std::set<Box*>  King::moveAndTake()
 	std::cout << "King clicked" << std::endl;
 
 	int n = Board::rowBoxNmbersandCols;
-	std::set<Box*> legalMoves{ location };
+	std::set<Box*> legalMoves;
 
 
 	for (int i = x - 1; i < n && i < (x + 2); i++) {
@@ -39,10 +39,34 @@ std::set<Box*>  King::moveAndTake()
             }
 		}
 	}
-	std::set<Box*>  CastleMoves= checkCastle();
+	std::set<Box*> CastleMoves= checkCastle();
 	legalMoves.insert(CastleMoves.begin(), CastleMoves.end());
 
-	return legalMoves;
+    // Filter unsafe moves
+    std::set<Box*> safeMoves;
+    for (Box* move : legalMoves) {
+        bool isSafe = true;
+        // Check against all enemy pieces
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                Piece* enemy = Board::gameboxess[i][j].getPiece();
+                if (enemy && enemy->getColor() != color) {
+                    bool dummy = false;
+                    std::set<Box*> threats = enemy->PieceThreatMap(&dummy);
+                    if (threats.find(move) != threats.end()) {
+                        isSafe = false;
+                        break;
+                    }
+                }
+            }
+            if (!isSafe) break;
+        }
+        if (isSafe) {
+            safeMoves.insert(move);
+        }
+    }
+
+	return safeMoves;
 }
 
 std::set<Box*> King::PieceThreatMap(bool* checkmate)

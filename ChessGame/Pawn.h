@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // Force rebuild
 #include "Piece.h"
 
 
