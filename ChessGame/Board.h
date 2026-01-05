@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "Box.h"
 #include "Player.h"
 #include "PlayerColor.h"
@@ -29,6 +29,7 @@ private:
 	Pawn* En_passantPawn;
 public:
 	Board();
+	static bool isInBounds(int x, int y);
 	void getLegalMovs(int cor_x, int cor_y);
 	void play(int cor_x, int cor_y);
 	void RenderBoard();//torendr all of the boxes 

@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h> 
 #include "Board.h"
 
 	class Window {
@@ -16,7 +16,7 @@
 	private:
 		SDL_Window* m_window;
 		SDL_Texture* m_texture;
-		Board *m_gamBoard;
+		Board *m_gameBoard;
 
 	public:
 		Window();
