@@ -11,16 +11,18 @@ Bishop::Bishop(Box* loc, PlayerColor color)
 	this->x = (location->x) / Board::BoxWidthandHigth;
 	this->y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
-	SDL_Surface* surface;
+	if (Window::m_renderer != nullptr) {
+		SDL_Surface* surface;
 
-	if (color == PlayerColor::BLACK) {
-		surface = IMG_Load("texture/BB.svg");
+		if (color == PlayerColor::BLACK) {
+			surface = IMG_Load("texture/BB.svg");
+		}
+		else {
+			surface = IMG_Load("texture/WB.svg");
+		}
+		texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
+		SDL_DestroySurface(surface);
 	}
-	else {
-		surface = IMG_Load("texture/WB.svg");
-	}
-	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_DestroySurface(surface);
 }
 
 

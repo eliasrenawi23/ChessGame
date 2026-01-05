@@ -12,9 +12,11 @@ Queen::Queen(Box* loc, PlayerColor color)
 	this->y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 
-	SDL_Surface* surface = IMG_Load((color == PlayerColor::BLACK) ? "texture/BQ.svg" : "texture/WQ.svg");
-	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_DestroySurface(surface);
+	if (Window::m_renderer != nullptr) {
+		SDL_Surface* surface = IMG_Load((color == PlayerColor::BLACK) ? "texture/BQ.svg" : "texture/WQ.svg");
+		texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
+		SDL_DestroySurface(surface);
+	}
 }
 
 

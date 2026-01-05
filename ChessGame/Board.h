@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <string>
 #include "Box.h"
 #include "Player.h"
 #include "PlayerColor.h"
@@ -37,6 +38,8 @@ public:
 	void highlightboxs(bool onOrOff);
 
 	void init();//init all of the boxes 
+	void clear();
+	void loadFEN(std::string fen);
 	void resize();
 	~Board();
 private:

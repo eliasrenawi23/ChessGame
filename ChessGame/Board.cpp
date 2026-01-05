@@ -51,6 +51,77 @@ void Board::resize()
 
 }
 
+
+void Board::clear() {
+	if (whitePlayer) whitePlayer->clear();
+	if (blackPlayer) blackPlayer->clear();
+	for (auto& row : gameboxess) {
+		for (auto& box : row) {
+			box.setPiece(nullptr);
+		}
+	}
+	boxtoLight.clear();
+	oldPieces.clear();
+	selectedBox = nullptr;
+	promotionBox = nullptr;
+	En_passantPawn = nullptr;
+	promotion = false;
+	checkmate = false;
+}
+
+void Board::loadFEN(std::string fen) {
+	clear();
+	
+	// Ensure players exist
+	if (!whitePlayer) whitePlayer = new Player(PlayerColor::WHITE);
+	if (!blackPlayer) blackPlayer = new Player(PlayerColor::BLACK);
+
+	int row = 0;
+	int col = 0;
+	size_t i = 0;
+
+	// 1. Piece placement
+	for (; i < fen.length(); i++) {
+		char c = fen[i];
+		if (c == ' ') break;
+		if (c == '/') {
+			row++;
+			col = 0;
+		}
+		else if (isdigit(c)) {
+			col += (c - '0');
+		}
+		else {
+			PlayerColor pieceColor = (isupper(c)) ? PlayerColor::WHITE : PlayerColor::BLACK;
+			Piece* newPiece = nullptr;
+			Box* box = &gameboxess[col][row];
+
+			char lowerC = tolower(c);
+			switch (lowerC) {
+				case 'p': newPiece = new Pawn(box, pieceColor); break;
+				case 'r': newPiece = new Rook(box, pieceColor); break;
+				case 'n': newPiece = new Knight(box, pieceColor); break;
+				case 'b': newPiece = new Bishop(box, pieceColor); break;
+				case 'q': newPiece = new Queen(box, pieceColor); break;
+				case 'k': newPiece = new King(box, pieceColor); break;
+			}
+
+			if (newPiece) {
+				box->setPiece(newPiece);
+				(pieceColor == PlayerColor::WHITE ? whitePlayer : blackPlayer)->addPiece(newPiece);
+			}
+			col++;
+		}
+	}
+
+	// 2. Turn (w/b) - Basic implementation, can expand later
+	i++; // skip space
+	if (i < fen.length()) {
+		playerTurn = (fen[i] == 'w');
+	}
+	// Further fields (castling, en passant, etc.) can be added here
+}
+
 void Board::getLegalMovs(int cor_x, int cor_y)
 {
 	int box_x = cor_x / (Window::SQUARE_SIZE / 8);

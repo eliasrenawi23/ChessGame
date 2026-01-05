@@ -30,6 +30,8 @@ public:
 	void updateVectorPieces(Piece* p);
 	void setopponentThreatMap(std::set<Box*> opponentThreatMap);
 	void init();
+	void clear();
+	void addPiece(Piece* p); // Helper for FEN loading
 	void handle_promotion(bool promotionmenu);
 	void dopromotion(Piece* selsectedPiece, int cor_x, int cor_y);
 	std::vector<Piece*> getPiecesOptions();

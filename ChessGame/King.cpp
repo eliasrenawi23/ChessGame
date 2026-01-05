@@ -11,10 +11,12 @@ King::King(Box* loc, PlayerColor color)
 	this->x = (location->x) / Board::BoxWidthandHigth;
 	this->y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
-	SDL_Surface* surface = IMG_Load((color == PlayerColor::BLACK) ? "texture/BK.svg" : "texture/WK.svg");
+	if (Window::m_renderer != nullptr) {
+		SDL_Surface* surface = IMG_Load((color == PlayerColor::BLACK) ? "texture/BK.svg" : "texture/WK.svg");
 
-	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_DestroySurface(surface);
+		texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
+		SDL_DestroySurface(surface);
+	}
 }
 
 

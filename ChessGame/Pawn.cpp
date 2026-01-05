@@ -10,9 +10,11 @@ Pawn::Pawn(Box* loc, PlayerColor color) :PossibleEnPassant(false)
 	this->y = (location->y) / Board::BoxWidthandHigth;
 	this->color = color;
 
-	SDL_Surface* surface = (color == PlayerColor::BLACK)? IMG_Load("texture/BP.svg"): IMG_Load("texture/WP.svg");
-	texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
-	SDL_DestroySurface(surface);
+	if (Window::m_renderer != nullptr) {
+		SDL_Surface* surface = (color == PlayerColor::BLACK) ? IMG_Load("texture/BP.svg") : IMG_Load("texture/WP.svg");
+		texture = SDL_CreateTextureFromSurface(Window::m_renderer, surface);
+		SDL_DestroySurface(surface);
+	}
 
 }
 std::set<Box*>  Pawn::moveAndTake()

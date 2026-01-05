@@ -117,6 +117,18 @@ void Player::init()
 
 }
 
+void Player::clear() {
+	for (Piece* piece : Pieces) {
+		delete piece;
+	}
+	Pieces.clear();
+	PiecesOptions.clear(); // Ensure options are also cleared if any
+}
+
+void Player::addPiece(Piece* p) {
+	Pieces.push_back(p);
+}
+
 void Player::handle_promotion(bool promotionMenu)
 {
 	//std::vector<Box*>PiecesOptions;
