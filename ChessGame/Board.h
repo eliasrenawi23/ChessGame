@@ -41,6 +41,10 @@ public:
 		bool isPromotion;
 		bool wasFirstMove;
 		Piece* promotedPiece; // The new piece created during promotion
+		std::string san;      // Standard Algebraic Notation
+        
+        Move() : from(nullptr), to(nullptr), movedPiece(nullptr), capturedPiece(nullptr), capturedPieceLocation(nullptr),
+                 isCastling(false), isEnPassant(false), isPromotion(false), wasFirstMove(false), promotedPiece(nullptr), san("") {}
 	};
 
 	std::vector<Move> history;
@@ -79,5 +83,7 @@ private:
 	void handle_promotion(int box_x, int box_y,bool *promotion);
 	void UpdatePieceLocation(Box *from,Box *to);
 	void en_passasntDelete(int x,int y, int new_x,int new_y,int diraction);
+	std::string calculateSAN(Box* from, Box* to, const Move& partialMove);
+
 };
 

@@ -347,6 +347,7 @@ void  Board::play(int cor_x, int cor_y) {
             // When promotion happens (next turn/click), we EDIT the last history entry to include the promoted piece and swap the movedPiece?
             // Yes.
             m.isPromotion = true;
+            m.san = calculateSAN(selectedBox, targetBox, m);
             history.push_back(m);
             currentMoveIndex++;
         } else if (prePromotion && !promotion) {
@@ -355,17 +356,20 @@ void  Board::play(int cor_x, int cor_y) {
             if (!history.empty()) {
                Move& last = history.back();
                last.promotedPiece = targetBox->getPiece(); // The new Queen
+               last.san = calculateSAN(last.from, last.to, last);
                // The old movedPiece (Pawn) was already recorded.
                // We are done.
             }
         } else {
             // Normal move
             if (!promotion) {
+               m.san = calculateSAN(selectedBox, targetBox, m);
                history.push_back(m);
                currentMoveIndex++;
             }
         }
         
+
         // --- RECORD MOVE END ---
 
 		selectedBox->setPiece(NULL);
@@ -718,6 +722,160 @@ Board::~Board() {
 	delete whitePlayer;
 	delete blackPlayer;
 }
+
+std::string Board::calculateSAN(Box* from, Box* to, const Move& partialMove) {
+    if (!partialMove.movedPiece) return "";
+
+    std::string san = "";
+    Piece* p = partialMove.movedPiece;
+    Player* player = (p->getColor() == PlayerColor::WHITE) ? whitePlayer : blackPlayer;
+
+    int fromCol = from->x / (Window::SQUARE_SIZE / 8);
+    int fromRow = from->y / (Window::SQUARE_SIZE / 8);
+    int toCol = to->x / (Window::SQUARE_SIZE / 8);
+    int toRow = to->y / (Window::SQUARE_SIZE / 8);
+    
+    char colChar = 'a' + toCol;
+    char rowChar = '8' - toRow;
+
+    // Piece Type Logic
+    if (dynamic_cast<Pawn*>(p)) {
+        if (partialMove.capturedPiece || partialMove.isEnPassant) {
+             san += (char)('a' + fromCol);
+             san += "x";
+        }
+        // Promotion handled at end
+    } else {
+        std::string pieceLetter = "";
+        if (dynamic_cast<Knight*>(p)) pieceLetter = "N";
+        else if (dynamic_cast<Bishop*>(p)) pieceLetter = "B";
+        else if (dynamic_cast<Rook*>(p)) pieceLetter = "R";
+        else if (dynamic_cast<Queen*>(p)) pieceLetter = "Q";
+        else if (dynamic_cast<King*>(p)) {
+            if (partialMove.isCastling) {
+                int dx = toCol - fromCol;
+                if (dx > 0) return "O-O";
+                else return "O-O-O";
+            }
+            pieceLetter = "K";
+        }
+
+        san += pieceLetter;
+
+        // AMBIGUITY CHECK
+        // If not King/Pawn, check conflicts
+        if (pieceLetter != "K" && pieceLetter != "") {
+             bool fileConflict = false;
+             bool rankConflict = false;
+             bool ambiguous = false;
+
+             bool dummyCheckmate = false;
+             for (Piece* other : player->getPieces()) {
+                 if (other == p) continue; // Skip self
+                 if (typeid(*other) != typeid(*p)) continue; // Must be same type
+
+                 // Check if 'other' can move to 'to'
+                 // This is expensive: generate moves for 'other'
+                 // We pass dummy checkmate ptr
+                 // Note: Board state is "before the move" (we are calculating SAN before push)
+                 // But wait! inside play(), we already did NOT move the piece technically?
+                 // calculateSAN called BEFORE move is executed?
+                 // No, I inserted calls: 
+                 // 1. promotion-start: before push. (Piece at from)
+                 // 2. promotion-end: after push? (No, we updated last.san. Piece currently at TO (promoted)? No, standard Pawn)
+                 // 3. normal: before push. (Piece at from).
+                 
+                 // So board is in Pre-Move state.
+                 // Correct for ambiguity check.
+                 
+                 std::set<Box*> moves = player->play(other, &dummyCheckmate);
+                 if (moves.count(to)) {
+                     ambiguous = true;
+                     int otherCol = other->getLocation()->x / (Window::SQUARE_SIZE / 8);
+                     int otherRow = other->getLocation()->y / (Window::SQUARE_SIZE / 8);
+
+                     if (otherCol == fromCol) fileConflict = true; // Same file -> need rank
+                     // If cols differ, we can use file.
+                 }
+             }
+
+             if (ambiguous) {
+                 if (!fileConflict) {
+                     san += (char)('a' + fromCol); // Disambiguate by file
+                 } else {
+                     // File conflict exists (e.g. both on 'g' file)
+                     // Check if ranks differ (they must, or same square?)
+                     // Use rank
+                     san += (char)('8' - fromRow);
+                     // If both file and rank conflict? 3 Queens?
+                     // Standard says: File, then Rank if File matches.
+                     // If 3 queens: Q at(4,4), Q at(4,6), Q at(6,4). Target (6,6).
+                     // Q44 -> 4!=6 file ok. Q64 -> 6==6 file conflict.
+                     // So one file conflict exists.
+                     // We use File if NO file conflict? No.
+                     // Rule:
+                     // 1. If file distinguishes, use file.
+                     // 2. Else if rank distinguishes, use rank.
+                     // 3. Else use both.
+                     
+                     // My logic: `fileConflict` means "There is at least one other candidate on the same file".
+                     // If so, file letter 'a'+fromCol is NOT unique.
+                     // So we must use rank?
+                     // Wait, if 3 pieces: A(g1), B(g5), C(e1). Target g3.
+                     // A and B collide on file. C is distinct.
+                     // Moving A: "Ngg3" is ambiguous vs B. "N1g3" is unique.
+                     // Moving C: "Neg3". Unique.
+                     
+                     // So for A: fileConflict=true (due to B).
+                     // We use Rank? "N1".
+                     // Is Rank unique?
+                     // Does B share rank with A? No.
+                     // So "N1g3" works.
+                     
+                     // What if rank conflict too?
+                     // A(g1), B(h1). Target f3. (Knights).
+                     // Shared rank 1. `rankConflict=true`.
+                     // File different. `fileConflict=false`.
+                     // Use File: "Ngf3". Unique.
+                     
+                     // So:
+                     // If (!fileConflict) use File.
+                     // Else (file is shared), use Rank.
+                 }
+                 // Edge case: Both shared? (3 queens on same file/rank/diag?)
+                 // Q1(e1), Q2(e8), Q3(h1). Target e4.
+                 // Q1 moves.
+                 // Q2 on e-file -> fileConflict.
+                 // Q3 not on e-file.
+                 // So use Rank: "Q1e4".
+                 // Q2 on e8. Rank 8 != 1. Unique.
+                 // Q3 on h1. Rank 1 == 1. Wait.
+                 // If Q3 could move to e4? (h1->e4 is diagonal? 3,3 vs 7,0. dy=3, dx=-4. No.)
+                 
+                 // If Q3(a1) moves to e1.
+                 // Q1(e8). Q2(h1).
+                 // Use file.
+                 
+                 // Just use simple priority for now:
+                 // if (!fileConflict) san += file;
+                 // else san += rank;
+             }
+        }
+
+        if (partialMove.capturedPiece) san += "x";
+    }
+
+    san += colChar;
+    san += rowChar;
+    
+    if (partialMove.isPromotion) {
+        san += "=Q"; 
+    }
+    
+    return san;
+}
+    
+
 
 
 

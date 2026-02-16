@@ -266,28 +266,8 @@ void Window::renderHistory() {
     for (size_t i = startIdx; i < history.size(); i++) {
         std::stringstream ss;
         ss << (i + 1) << ". ";
-        // Simple notation: From->To
-        // Should convert box index to Algebraic (A1..H8)
-        // Box x, y. 0,0 is A8? or A1?
-        // Board logic: x = col, y = row.
-        // Assuming row 0 is top (Black), row 7 is bottom (White).
-        // A=0, H=7.
-        // Rank: row 0 -> 8, row 7 -> 1.
-        
-        // Helper to convert Box* to string
-        auto boxToStr = [](Box* b) -> std::string {
-            int bx = b->x / (Window::SQUARE_SIZE / 8); 
-            int by = b->y / (Window::SQUARE_SIZE / 8);
-            char col = 'a' + bx;
-            char row = '8' - by;
-            return std::string() + col + row;
-        };
-        
-        ss << boxToStr(history[i].from) << " -> " << boxToStr(history[i].to);
-        
-        if (history[i].capturedPiece) ss << " [x]";
-        if (history[i].isCastling) ss << " (0-0)";
-        if (history[i].isPromotion) ss << "=Q"; // simplification
+        // Use SAN string
+        ss << history[i].san;
         
         std::string line = ss.str();
         SDL_Color color = { 200, 200, 200, 255 };
