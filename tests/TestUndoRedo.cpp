@@ -48,6 +48,7 @@ TEST_F(UndoRedoTest, CaptureUndo) {
     board.getLegalMovs(350, 750); // d1 (3,7) -> Wait, row 7 is bottom. d1 is (3,7).
     
     // Move to d8 (3,0) -> 350, 50
+    // Move to d8 (3,0) -> 350, 50
     board.play(350, 50);
     
     // Verify Capture

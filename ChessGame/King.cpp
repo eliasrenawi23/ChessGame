@@ -91,20 +91,28 @@ std::set<Box*> King::getCoverPath() {
 	bool thretInPath = false, kingInPath = false;
 	std::set<Box*> coverPath;
 
-	std::vector<std::set<Box*>> directions = {
-		checkDiagonal(x, y, 1, 1, &thretInPath, &kingInPath),
-		checkDiagonal(x, y, -1, 1, &thretInPath, &kingInPath),
-		checkDiagonal(x, y, 1, -1, &thretInPath, &kingInPath),
-		checkDiagonal(x, y, -1, -1, &thretInPath, &kingInPath),
-		rowMovs(x, y, 1, &thretInPath, &kingInPath),
-		rowMovs(x, y, -1, &thretInPath, &kingInPath),
-		colMovs(x, y, 1, &thretInPath, &kingInPath),
-		colMovs(x, y, -1, &thretInPath, &kingInPath)
-	};
+	// Check Diagonals
+	std::vector<std::pair<int, int>> diagDirs = { {1, 1}, {-1, 1}, {1, -1}, {-1, -1} };
+	for (auto d : diagDirs) {
+		thretInPath = false; kingInPath = false;
+		coverPath = checkDiagonal(x, y, d.first, d.second, &thretInPath, &kingInPath);
+		if (thretInPath) return coverPath;
+	}
 
-	for (const auto& dir : directions) {
-		if (thretInPath) return dir;
-		thretInPath = false;
+	// Check Rows (Horizontal)
+	std::vector<int> rowDirs = { 1, -1 };
+	for (auto d : rowDirs) {
+		thretInPath = false; kingInPath = false;
+		coverPath = rowMovs(x, y, d, &thretInPath, &kingInPath);
+		if (thretInPath) return coverPath;
+	}
+
+	// Check Columns (Vertical)
+	std::vector<int> colDirs = { 1, -1 };
+	for (auto d : colDirs) {
+		thretInPath = false; kingInPath = false;
+		coverPath = colMovs(x, y, d, &thretInPath, &kingInPath);
+		if (thretInPath) return coverPath;
 	}
 
 	if (Box* knightThreat = checkKinghtCheckmate()) {

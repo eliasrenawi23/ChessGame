@@ -205,3 +205,33 @@ TEST_F(CheckMateTest, ScholarsMate) {
     EXPECT_TRUE(moves.empty());
 }
 
+TEST_F(CheckMateTest, BugRepro_CanBlockCheck) {
+    // White King at e1. Black Queen at h4.
+    // White Pawn at g2.
+    // The King is in check. coverPath should include g3 (6,5) and f2? No, check checks diagonals?
+    // Queen h4 (7,4) -> e1 (4,7).
+    // Path: f2 (5,6), g3 (6,5).
+    // So coverPath MUST contain g3 and f2.
+    
+    board.loadFEN("rnb1kbnr/pppp1ppp/8/8/7q/8/PPPPP1PP/RNBQKBNR w KQkq - 0 1");
+    
+    // Check if King is in check
+    Piece* king = Board::gameboxess[4][7].getPiece();
+    ASSERT_TRUE(dynamic_cast<King*>(king));
+    King* k = dynamic_cast<King*>(king);
+    
+    // Verify coverpath
+    std::set<Box*> coverPath = k->getCoverPath();
+    
+    // Expect g3 (6,5) to be in coverPath
+    bool hasG3 = false;
+    for(auto m : coverPath) {
+        if (m->x / Board::BoxWidthandHigth == 6 && m->y / Board::BoxWidthandHigth == 5) {
+            hasG3 = true;
+        }
+    }
+    
+    // This assertion should fail if the bug exists (and it returns empty or wrong path)
+    EXPECT_TRUE(hasG3) << "King's cover path should include g3 to block Queen from h4.";
+}
+

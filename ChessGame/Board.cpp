@@ -62,7 +62,8 @@ void Board::clear() {
 	}
 	boxtoLight.clear();
 	oldPieces.clear();
-    history.clear();
+	history.clear();
+    history.reserve(200); // Reserve memory to verify if reallocation is the issue
     currentMoveIndex = 0;
 	selectedBox = nullptr;
 	promotionBox = nullptr;
@@ -194,6 +195,7 @@ void  Board::play(int cor_x, int cor_y) {
 	Box* targetBox = &gameboxess[box_x][box_y]; // the box to play to 
 	auto pos = boxtoLight.find(targetBox);
 	if (pos != boxtoLight.end()) {
+        std::cout << "Board::play: Move confirmed to " << box_x << "," << box_y << std::endl;
         
         // --- RECORD MOVE START ---
         // Clear any future history if we are in the middle of undo/redo stack
@@ -201,7 +203,7 @@ void  Board::play(int cor_x, int cor_y) {
             // Delete any promoted pieces in the redo stack to prevent leaks!
             for(size_t i = currentMoveIndex; i < history.size(); i++) {
                 if (history[i].promotedPiece) delete history[i].promotedPiece;
-                if (history[i].capturedPiece) delete history[i].capturedPiece; // If we drift from history, old captured pieces are gone forever
+                // DO NOT delete capturedPiece! It was restored to the board by Undo.
             }
             history.resize(currentMoveIndex);
         }
@@ -226,68 +228,9 @@ void  Board::play(int cor_x, int cor_y) {
 		}
 		
         // En Passant check
-        // Original logic: En_passant(box_x, box_y) called internally creates side-effects.
-        // We need to detect if En_passant WILL happen.
-        // En_passant method modifies state. We should control it.
-        // Let's modify En_passant to return info or just do it and we capture the result?
-        // But En_passant deletes the pawn.
-        // Better: Check condition ourselves or modify En_passant.
-        // I will MODIFY En_passant below to take the Move& and fill it.
-		En_passant(box_x, box_y);
-        if (En_passantPawn == nullptr && dynamic_cast<Pawn*>(m.movedPiece)) {
-             // If En Passant happened, En_passantPawn resets? No, En_passantPawn tracks the target.
-             // Wait, logic in En_passant(new_x, new_y):
-             // It calls en_passasntDelete.
-             // We need to capture the piece BEFORE it is deleted.
-             // Current En_passant implementation is void and hides the deleted piece.
-             
-             // HACK: I will check history.back() inside En_passant? No.
-             // I will augment En_passant below.
-             // For now, let's assume En_passant will fill 'lastCaptured' member or similar if I added it?
-             // Since I can't easily change signature in header without another tool call (I already did though in Board.h? No I declared undo/redo but didn't change En_passant sig in header).
-             // Actually I didn't change En_passant signature in Board.h. 
-             // So I must rely on side effects or change logic here inline.
-             
-             // Inline En Passant Logic Detection:
-             if(dynamic_cast<Pawn*>(m.movedPiece)) {
-                 int dir = (m.movedPiece->getColor() == PlayerColor::WHITE) ? 1 : -1; 
-                 // Note: Logic in Board.cpp line 211 says if white 1 else -1. 
-                 // Check Pawn.cpp: White -1, Black 1.
-                 // Board.cpp En_passant line 211: (WHITE) ? 1 : -1. This seems INVERTED compared to Pawn.cpp?
-                 // Let's trust Board.cpp for Board actions.
-                 // Actually, Board.cpp line 211 logic seems to be about finding the CAPTURED pawn direction.
-                 
-                 // If moved diagonally and target empty -> En Passant.
-                 if (targetBox->getPiece() == nullptr && m.from->x != m.to->x) {
-                     m.isEnPassant = true;
-                     int capturedY = m.from->y / (Window::SQUARE_SIZE / 8); 
-                     int capturedX = box_x; // The pawn being captured is at [new_x][old_y] ?
-                     // en_passasntDelete uses: (old_x - 1, old_y, new_x, new_y) and (old_x + 1 ...)
-                     // It checks if (old_x == new_x && new_y == old_y - diraction)
-                     // This is confusing. 
-                     
-                     // Let's look at what En_passant DOES.
-                     // It checks adjacency. 
-                     
-                     // Alternative: Checking `deletepiece` calls.
-                     // I can make `deletepiece` store the last deleted piece in a temp member variable `lastDeletedPiece`.
-                     // `lastDeletedPiece` = nullptr at start of `play`.
-                 }
-             }
-        }
-        
-        // I'll use a member var `lastDeletedPiece` in Board but I can't add it to header now easily without another pass.
-        // Wait, I CAN just read the board state before calling En_passant.
-        // If it returns, I can check what changed.
-        
-        // Let's try to infer from `Move` construction.
-        // If `m.capturedPiece` is null (standard capture), check En Passant.
         if (m.capturedPiece == nullptr && dynamic_cast<Pawn*>(m.movedPiece) && m.from->x != m.to->x) {
-             // Diagonal move to empty square = En Passant.
              m.isEnPassant = true;
              // Where is the captured pawn?
-             // If White moves, captures Black pawn "behind" the new square?
-             // White moves (-1 y). Captured pawn is at [to_x][from_y]? No.
              // Standard En Passant: Target is at [to_x][from_y].
              int capturedX = box_x;
              int capturedY = m.from->y / (Window::SQUARE_SIZE / 8);
@@ -298,17 +241,12 @@ void  Board::play(int cor_x, int cor_y) {
 
 		En_passant(box_x, box_y);
         
-        // Refine En Passant capture: En_passant() calls deletepiece().
-        // If I changed deletepiece() to NOT delete, then the piece is still in memory but not on board.
-        // But `En_passant` logic calls `pawn->~Pawn()` which I should remove.
-        
 		UpdatePieceLocation(selectedBox, (*pos));
 		
         // Check Castling
         // If King moved 2 squares.
         if (dynamic_cast<King*>(m.movedPiece) && abs(m.from->x / (Window::SQUARE_SIZE / 8) - box_x) == 2) {
             m.isCastling = true;
-            // Validated by CastleMove logic
         }
         CastleMove(box_x, box_y);		//check if Castle
 
@@ -393,6 +331,7 @@ void  Board::play(int cor_x, int cor_y) {
 }
 
 void Board::undo() {
+    std::cout << "Board::undo called. currentMoveIndex: " << currentMoveIndex << std::endl;
     if (currentMoveIndex == 0) return;
     
     // If we are in the middle of a promotion selection (promotion == true), cancel it first?
@@ -410,6 +349,7 @@ void Board::undo() {
     }
 
     currentMoveIndex--;
+    std::cout << "Undo: Decremented index to " << currentMoveIndex << ". History size: " << history.size() << std::endl;
     Move& m = history[currentMoveIndex];
 
     // 1. Restore Piece Position
@@ -427,6 +367,8 @@ void Board::undo() {
     Box* fromBox = m.from;
     Box* toBox = m.to;
     
+    std::cout << "Undo: Restoring piece from " << toBox << " to " << fromBox << std::endl;
+
     // Determine which piece is currently at 'toBox'.
     // If promotion, it's empty (we just detached promotedPiece).
     // If normal, it's 'movedPiece'.
@@ -437,16 +379,34 @@ void Board::undo() {
     }
     
     // Place movedPiece back at 'from'
-    fromBox->setPiece(m.movedPiece);
-    m.movedPiece->setLocation(fromBox);
-    m.movedPiece->firstMove = m.wasFirstMove;
+    if (m.movedPiece) {
+        std::cout << "Undo: Setting piece " << m.movedPiece << " to fromBox" << std::endl;
+        fromBox->setPiece(m.movedPiece);
+        m.movedPiece->setLocation(fromBox);
+        m.movedPiece->firstMove = m.wasFirstMove;
+    } else {
+        std::cout << "ERROR: movedPiece is NULL" << std::endl;
+    }
 
     // 2. Restore Captured Piece
     if (m.capturedPiece) {
-        m.capturedPieceLocation->setPiece(m.capturedPiece);
-        m.capturedPiece->setLocation(m.capturedPieceLocation);
-        // Add back to player's vector
-        (m.capturedPiece->getColor() == PlayerColor::WHITE ? whitePlayer : blackPlayer)->addPiece(m.capturedPiece);
+        std::cout << "Undoing capture. Piece: " << m.capturedPiece 
+                  << " Location: " << m.capturedPieceLocation << std::endl;
+        
+        if (m.capturedPieceLocation) {
+             m.capturedPieceLocation->setPiece(m.capturedPiece);
+        } else {
+             std::cout << "ERROR: capturedPieceLocation is NULL" << std::endl;
+        }
+
+        if (m.capturedPiece) {
+             m.capturedPiece->setLocation(m.capturedPieceLocation);
+             std::cout << "Restored location. Color: " << (int)m.capturedPiece->getColor() << std::endl;
+             // Add back to player's vector
+             (m.capturedPiece->getColor() == PlayerColor::WHITE ? whitePlayer : blackPlayer)->addPiece(m.capturedPiece);
+        } else {
+             std::cout << "ERROR: capturedPiece is NULL (impossible inside if)" << std::endl;
+        }
     }
 
     // 3. Undo Castling
