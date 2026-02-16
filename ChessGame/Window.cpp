@@ -210,7 +210,7 @@ void Window::renderSidePanel() {
     SDL_FRect panelRect = { (float)xStart, 0, (float)SIDE_PANEL_WIDTH, (float)SCREEN_HEIGHT };
     
     // Background
-    SDL_SetRenderDrawColor(m_renderer, 50, 50, 50, 255);
+    SDL_SetRenderDrawColor(m_renderer, 40, 44, 52, 255); // Darker modern grey
     SDL_RenderFillRect(m_renderer, &panelRect);
     
     // Buttons
@@ -229,11 +229,10 @@ void Window::renderSidePanel() {
 }
 
 void Window::renderButton(const SDL_FRect& rect, const char* text) {
-    SDL_SetRenderDrawColor(m_renderer, 100, 100, 100, 255);
+    SDL_SetRenderDrawColor(m_renderer, 70, 75, 85, 255); // Button fill
     SDL_RenderFillRect(m_renderer, &rect);
     
-    SDL_SetRenderDrawColor(m_renderer, 200, 200, 200, 255);
-    SDL_RenderRect(m_renderer, &rect); // Border
+    SDL_SetRenderDrawColor(m_renderer, 100, 110, 120, 255); // Button border
     
     if (m_font) {
         SDL_Surface* surface = TTF_RenderText_Solid(m_font, text, 0, {255, 255, 255, 255});
@@ -270,9 +269,9 @@ void Window::renderHistory() {
         ss << history[i].san;
         
         std::string line = ss.str();
-        SDL_Color color = { 200, 200, 200, 255 };
-        if (i == currentIndex - 1) color = { 64, 191, 255, 255 }; // Highlight last move
-        if (i >= currentIndex) color = { 100, 100, 100, 255 }; // Future moves (undo stack)
+        SDL_Color color = { 171, 178, 191, 255 }; // Light grey for history
+        if (i == currentIndex - 1) color = { 64, 191, 255, 255 }; // Blue highlight for last move
+        if (i >= currentIndex) color = { 92, 99, 112, 255 }; // Dimmed grey for future moves (undo stack)
         
         SDL_Surface* surface = TTF_RenderText_Solid(m_font, line.c_str(), 0, color);
          if (surface) {
