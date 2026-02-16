@@ -36,6 +36,19 @@ void Piece::renderPiece() const {
 	}
 
 	SDL_FRect fromRect = { 0, 0,w, h };
+
+	// Render Shadow
+	int shadowOffset = 3;
+	SDL_SetTextureColorMod(texture, 0, 0, 0);
+	SDL_SetTextureAlphaMod(texture, 100); // Semi-transparent shadow
+	SDL_FRect shadowRect = { static_cast<float>(location->x + shadowOffset), static_cast<float>(location->y + shadowOffset), static_cast<float>(location->size), static_cast<float>(location->size) };
+	SDL_RenderTexture(Window::m_renderer, texture, &fromRect, &shadowRect);
+
+	// Reset Mods
+	SDL_SetTextureColorMod(texture, 255, 255, 255);
+	SDL_SetTextureAlphaMod(texture, 255);
+
+	// Render Piece
 	SDL_FRect toRect = { static_cast<float>(location->x), static_cast<float>(location->y), static_cast<float>(location->size), static_cast<float>(location->size) };
 
 	if (!SDL_RenderTexture(Window::m_renderer, texture, &fromRect, &toRect)) {
